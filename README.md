@@ -9,3 +9,5 @@ https://youtube.com/playlist?list=PLZtsyUFIPoUs07PEZGQ9psxL8dMzg9EfJ&si=JrGW6MSE
 https://youtube.com/playlist?list=PL_-vdmZwTyghW3lrgD7YXvh9GKt843BS8&si=CAQvfh9lFgcRmytD
 ### Assets of a bow and an arrow  
 https://assetstore.unity.com/packages/3d/props/weapons/free-pack-of-medieval-weapons-136607#description
+### 弓矢の実装例をGeminiに聞いたぜ
+https://g.co/gemini/share/955d7344f124
