@@ -1,34 +1,37 @@
 using UnityEngine;
+using System.Collections;
 
 public class PooledTarget : MonoBehaviour, IPoolable
 {
     public float lifeTime = 5f;
-    private float timer;
+    private Coroutine lifeCoroutine;
 
     public void OnSpawn()
     {
-        timer = 0f;
-        // 色や大きさのランダム化など初期化処理を実装
+        // ライフタイムコルーチン開始（前回あれば停止）
+        if (lifeCoroutine != null) StopCoroutine(lifeCoroutine);
+        lifeCoroutine = StartCoroutine(LifeTimer());
+
+        // その他リセット処理（色やスケールなど）
     }
 
     public void OnDespawn()
     {
-        // エフェクト停止など、返却時の後片付け
+        // コルーチン停止
+        if (lifeCoroutine != null) StopCoroutine(lifeCoroutine);
+        lifeCoroutine = null;
+
+        // TargetSpawner のカウントデクリメント
+        var spawner = FindObjectOfType<TargetSpawner>();
+        spawner?.OnTargetDespawned();
+
+        // エフェクト停止など後片付け
     }
 
-    void Update()
+    private IEnumerator LifeTimer()
     {
-        timer += Time.deltaTime;
-        if (timer >= lifeTime)
-        {
-            // 自分自身をプールに返却
-            TargetPoolManager.Instance.ReturnTarget(this);
-            // TargetSpawner のカウントをデクリメント
-            TargetSpawner spawner = FindObjectOfType<TargetSpawner>();
-            if (spawner != null)
-            {
-                spawner.OnTargetDespawned();
-            }
-        }
+        yield return new WaitForSeconds(lifeTime);
+        // 寿命到達でプール返却
+        TargetPoolManager.Instance.ReturnTarget(this);
     }
 }
