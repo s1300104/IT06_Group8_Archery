@@ -1,0 +1,42 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class ObjectPool<T> where T : Component, IPoolable
+{
+    private T prefab;
+    private Transform parent;
+    private Queue<T> pool = new Queue<T>();
+
+    public ObjectPool(T prefab, int initialSize, Transform parent = null)
+    {
+        this.prefab = prefab;
+        this.parent = parent;
+        for (int i = 0; i < initialSize; i++)
+        {
+            var obj = CreateNew();
+            ReturnToPool(obj);
+        }
+    }
+
+    private T CreateNew()
+    {
+        var instance = Object.Instantiate(prefab, parent);
+        instance.gameObject.SetActive(false);
+        return instance;
+    }
+
+    public T Get()
+    {
+        var obj = pool.Count > 0 ? pool.Dequeue() : CreateNew();
+        obj.gameObject.SetActive(true);
+        obj.OnSpawn();
+        return obj;
+    }
+
+    public void ReturnToPool(T obj)
+    {
+        obj.OnDespawn();
+        obj.gameObject.SetActive(false);
+        pool.Enqueue(obj);
+    }
+}
