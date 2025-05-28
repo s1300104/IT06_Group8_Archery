@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5640515078545913115}
   - component: {fileID: 8133213479255937527}
   - component: {fileID: 3376797907812478307}
+  - component: {fileID: 4890809140310961183}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -119,3 +120,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 2
+--- !u!114 &4890809140310961183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3697930223653698242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65f8080102e386449afef7b3af49061c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 3
+  oscillationDistance: 5
+  circleRadius: 3
+  circleSpeedMultiplier: 1
+  waveFrequency: 1
+  waveAmplitude: 1
+  chaseSpeed: 1.5
+  minChaseDistance: 5
+  stopDuration: 2
+  moveDuration: 3
+  waypointAreaSize: {x: 10, y: 5, z: 10}
+  timeToReachWaypoint: 3
