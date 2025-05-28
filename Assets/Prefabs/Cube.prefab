@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91579be30ab90654ba2f6ae3402e836c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 2
+  lifeTime: 3
 --- !u!114 &4890809140310961183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,11 +136,11 @@ MonoBehaviour:
   oscillationDistance: 5
   circleRadius: 3
   circleSpeedMultiplier: 1
-  waveFrequency: 1
-  waveAmplitude: 1
-  chaseSpeed: 1.5
-  minChaseDistance: 5
-  stopDuration: 2
-  moveDuration: 3
-  waypointAreaSize: {x: 10, y: 5, z: 10}
-  timeToReachWaypoint: 3
+  waveFrequency: 4
+  waveAmplitude: 8
+  chaseSpeed: 3
+  minChaseDistance: 2
+  stopDuration: 0.25
+  moveDuration: 0.5
+  waypointAreaSize: {x: 10, y: 1, z: 10}
+  timeToReachWaypoint: 0.5

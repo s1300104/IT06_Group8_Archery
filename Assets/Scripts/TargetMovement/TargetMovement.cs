@@ -18,7 +18,7 @@ public class TargetMovement : MonoBehaviour
     }
 
     public MovementPattern currentPattern { get; private set; } // 現在のパターン
-    
+
     [Header("General Settings")]
     public float speed = 3.0f;
     // public float lifetime = 10.0f; // PooledTargetが管理するので削除
@@ -88,7 +88,9 @@ public class TargetMovement : MonoBehaviour
                 break;
             case MovementPattern.SineWaveHorizontal:
             case MovementPattern.SineWaveVertical:
-                baseDirection = transform.forward; // 前方を基準に進む
+                var dir = Random.insideUnitCircle.normalized;
+                baseDirection = new Vector3(dir.x, pattern == MovementPattern.SineWaveVertical ? dir.y : 0, pattern == MovementPattern.SineWaveHorizontal ? dir.y : 0);
+                transform.rotation = Quaternion.LookRotation(baseDirection, Vector3.up);
                 break;
             case MovementPattern.SlowChasePlayer:
                 GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -202,9 +204,9 @@ public class TargetMovement : MonoBehaviour
     {
         transform.Translate(baseDirection * speed * Time.deltaTime, Space.World);
         float sineOffset = Mathf.Sin(timeAccumulator * waveFrequency) * waveAmplitude;
-        // Y軸周りの回転から右方向を取得して揺らす
-        Vector3 horizontalWiggleDirection = Quaternion.AngleAxis(90, transform.up) * baseDirection;
-        transform.position += horizontalWiggleDirection.normalized * sineOffset * Time.deltaTime;
+        /* // Y軸周りの回転から右方向を取得して揺らす
+        Vector3 horizontalWiggleDirection = Quaternion.AngleAxis(90, transform.up) * baseDirection; */
+        transform.position += transform.right * sineOffset * Time.deltaTime;
 
     }
 
@@ -212,9 +214,9 @@ public class TargetMovement : MonoBehaviour
     {
         transform.Translate(baseDirection * speed * Time.deltaTime, Space.World);
         float sineOffset = Mathf.Sin(timeAccumulator * waveFrequency) * waveAmplitude;
-        // X軸周りの回転から上方向を取得して揺らす
-        Vector3 verticalWiggleDirection = Quaternion.AngleAxis(90, transform.right) * baseDirection;
-        transform.position += verticalWiggleDirection.normalized * sineOffset * Time.deltaTime;
+        /* // X軸周りの回転から上方向を取得して揺らす
+        Vector3 verticalWiggleDirection = Quaternion.AngleAxis(90, transform.right) * baseDirection; */
+        transform.position += transform.up * sineOffset * Time.deltaTime;
     }
 
     void MoveSlowChasePlayer()
