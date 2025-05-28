@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 3
-  oscillationDistance: 5
+  oscillationDistance: 1
   circleRadius: 3
   circleSpeedMultiplier: 1
   waveFrequency: 4
