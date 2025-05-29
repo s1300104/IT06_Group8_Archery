@@ -5,15 +5,15 @@
 * s1300154
 ## References
 ### Implement bow and arrow system in VR
-https://youtube.com/playlist?list=PLZtsyUFIPoUs07PEZGQ9psxL8dMzg9EfJ&si=JrGW6MSEP3JawHBK
-https://youtube.com/playlist?list=PL_-vdmZwTyghW3lrgD7YXvh9GKt843BS8&si=CAQvfh9lFgcRmytD
+[Youtube Playlist: Reference for Archery](https://youtube.com/playlist?list=PLZtsyUFIPoUs07PEZGQ9psxL8dMzg9EfJ&si=JrGW6MSEP3JawHBK)
+[Youtube Playlist: Bow and Arrow in Unity](https://youtube.com/playlist?list=PL_-vdmZwTyghW3lrgD7YXvh9GKt843BS8&si=CAQvfh9lFgcRmytD)
 ### Assets of a bow and an arrow  
-https://assetstore.unity.com/packages/3d/props/weapons/free-pack-of-medieval-weapons-136607#description  
+[Unity Asset Store - Bow and Arrow](https://assetstore.unity.com/packages/3d/props/weapons/free-pack-of-medieval-weapons-136607#description) 
 ### Asset of sounds of bow and arrow combat
-https://assetstore.unity.com/packages/audio/sound-fx/medieval-archery-combat-crossbow-bow-and-arrow-sounds-265841#content
+[Unity Asset Store - Arrow Sound FX](https://assetstore.unity.com/packages/audio/sound-fx/medieval-archery-combat-crossbow-bow-and-arrow-sounds-265841#content)
 ### 弓矢の実装例をGeminiに聞いたぜ
-https://g.co/gemini/share/955d7344f124
+[Gemini - The example of the improvement of bow and arrow](https://g.co/gemini/share/955d7344f124)
 ### The model and the animation of bomb
-https://sketchfab.com/3d-models/mk2-grenade-598a4d6c394b41898f653c118cf417c6
-https://sketchfab.com/3d-models/dynamite-low-poly-b4bc8c5bcf06468e81dc091bca646838
-https://assetstore.unity.com/packages/vfx/particles/fire-explosions/comic-explosion-effect-317348
+[MK2 Grenade](https://sketchfab.com/3d-models/mk2-grenade-598a4d6c394b41898f653c118cf417c6)
+[Dynamite 3D model](https://sketchfab.com/3d-models/dynamite-low-poly-b4bc8c5bcf06468e81dc091bca646838)
+[Unity Asset Store - Comical explosions effect](https://assetstore.unity.com/packages/vfx/particles/fire-explosions/comic-explosion-effect-317348)
