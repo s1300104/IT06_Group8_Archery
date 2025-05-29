@@ -13,3 +13,7 @@ https://assetstore.unity.com/packages/3d/props/weapons/free-pack-of-medieval-wea
 https://assetstore.unity.com/packages/audio/sound-fx/medieval-archery-combat-crossbow-bow-and-arrow-sounds-265841#content
 ### 弓矢の実装例をGeminiに聞いたぜ
 https://g.co/gemini/share/955d7344f124
+### The model and the animation of bomb
+https://sketchfab.com/3d-models/mk2-grenade-598a4d6c394b41898f653c118cf417c6
+https://sketchfab.com/3d-models/dynamite-low-poly-b4bc8c5bcf06468e81dc091bca646838
+https://assetstore.unity.com/packages/vfx/particles/fire-explosions/comic-explosion-effect-317348
