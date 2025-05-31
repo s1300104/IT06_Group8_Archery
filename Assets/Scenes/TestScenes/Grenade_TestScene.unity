@@ -7358,7 +7358,6 @@ Transform:
   m_Children:
   - {fileID: 1260792796}
   - {fileID: 2331118200971234929}
-  - {fileID: 543450653174123253}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &543450653174123253
@@ -7369,13 +7368,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919132148648480847}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 0.02625, y: 0.08027, z: 0.014229983}
+  m_LocalRotation: {x: 6.2639033e-23, y: 1, z: -0, w: 0}
+  m_LocalPosition: {x: 0.026249997, y: 1.13027, z: 0.38423}
   m_LocalScale: {x: 0.023, y: 0.023, z: 0.023}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7608907149743564303}
-  m_Father: {fileID: 543450652448821922}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &919132148258752536
 GameObject:
@@ -7739,7 +7738,7 @@ FixedJoint:
   m_GameObject: {fileID: 8346486672490841714}
   m_ConnectedBody: {fileID: 607355036}
   m_ConnectedArticulationBody: {fileID: 0}
-  m_BreakForce: 20
+  m_BreakForce: 30
   m_BreakTorque: Infinity
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
@@ -7767,11 +7766,11 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 2
 --- !u!64 &8346486672490841717
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -8003,4 +8002,5 @@ SceneRoots:
   - {fileID: 73532488}
   - {fileID: 543450652448821922}
   - {fileID: 6349738098413386446}
+  - {fileID: 543450653174123253}
   - {fileID: 846752118}
