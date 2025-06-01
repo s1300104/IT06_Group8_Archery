@@ -18,5 +18,5 @@
 [Dynamite 3D model](https://sketchfab.com/3d-models/dynamite-low-poly-b4bc8c5bcf06468e81dc091bca646838)<br>
 [Unity Asset Store - Comical explosions effect](https://assetstore.unity.com/packages/vfx/particles/fire-explosions/comic-explosion-effect-317348)
 ### ExclusiveSelectBlocker
-[Gemini - Prevent switching](https://g.co/gemini/share/c635f8e2b6e2)
+[Gemini - Prevent switching](https://g.co/gemini/share/c635f8e2b6e2)<br>
 [ChatGPT - Prevent switching](https://chatgpt.com/share/683bfe46-f2cc-8011-b18e-6ecad144dc60)
