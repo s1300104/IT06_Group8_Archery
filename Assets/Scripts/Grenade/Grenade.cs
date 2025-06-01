@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Grenade : MonoBehaviour
+public class Grenade : XRGrabInteractable
 {
     [Header("State")]
     private bool hasPinPulled = false;
@@ -26,6 +27,8 @@ public class Grenade : MonoBehaviour
 
     void Awake()
     {
+        base.Awake();
+        
         // audioSource = GetComponent<AudioSource>(); // AudioSourceがない場合は追加する
         // if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
@@ -146,6 +149,23 @@ public class Grenade : MonoBehaviour
         {
             GrenadeManager.Instance.UnregisterGrenade();
         }
+    }
+
+    public override bool IsSelectableBy(IXRSelectInteractor interactor)
+    {
+        // 既に他のインタラクターによって選択されているか（保持されているか）どうかを確認
+        // interactorsSelecting リストには、現在このオブジェクトを選択しているインタラクターが含まれる
+        bool isAlreadyGrabbedByOther = interactorsSelecting.Count > 0 && !interactorsSelecting.Contains(interactor);
+    
+        if (isAlreadyGrabbedByOther)
+        {
+            // 既に他の手で掴まれている場合、このインタラクター（別の手）による選択は許可しない
+            return false;
+        }
+    
+        // 上記以外の場合（誰も掴んでいない、または掴もうとしているのが現在掴んでいる手自身であるなど）、
+        // 基底クラスの選択ロジック（距離やレイヤーマスクなど）に従う
+        return base.IsSelectableBy(interactor);
     }
 
     // (デバッグ用) 爆発範囲をシーンビューに表示
