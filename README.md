@@ -17,3 +17,5 @@
 [MK2 Grenade](https://sketchfab.com/3d-models/mk2-grenade-598a4d6c394b41898f653c118cf417c6)<br>
 [Dynamite 3D model](https://sketchfab.com/3d-models/dynamite-low-poly-b4bc8c5bcf06468e81dc091bca646838)<br>
 [Unity Asset Store - Comical explosions effect](https://assetstore.unity.com/packages/vfx/particles/fire-explosions/comic-explosion-effect-317348)
+### ExclusiveSelectBlocker
+[Gemini - Prevent switching](https://g.co/gemini/share/c635f8e2b6e2)
