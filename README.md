@@ -20,3 +20,5 @@
 ### ExclusiveSelectBlocker
 [Gemini - Prevent switching](https://g.co/gemini/share/c635f8e2b6e2)<br>
 [ChatGPT - Prevent switching](https://chatgpt.com/share/683bfe46-f2cc-8011-b18e-6ecad144dc60)
+### To-Do list
+[Google Document - Matome](https://docs.google.com/document/d/1H0-nGykNF5QX-9kRa1jZi9oit7I8zWMuEqTLxQkWmoM/edit?usp=sharing)
