@@ -6,9 +6,9 @@ public class PooledTarget : MonoBehaviour, IPoolable
     public float lifeTime = 5f;
     private Coroutine lifeCoroutine;
 
-    private TargetMovement targetMovement; // TargetMovementスクリプトへの参照
+    protected TargetMovement targetMovement; // TargetMovementスクリプトへの参照
 
-    void Awake()
+    protected virtual void Awake()
     {
         // 自身のGameObjectにアタッチされているTargetMovementを取得
         targetMovement = GetComponent<TargetMovement>();
@@ -18,7 +18,7 @@ public class PooledTarget : MonoBehaviour, IPoolable
         }
     }
 
-    public void OnSpawn()
+    public virtual void OnSpawn()
     {
         // ライフタイムコルーチン開始（前回あれば停止）
         if (lifeCoroutine != null) StopCoroutine(lifeCoroutine);
@@ -39,7 +39,7 @@ public class PooledTarget : MonoBehaviour, IPoolable
         // 例: GetComponent<Renderer>().material.color = Color.white;
     }
 
-    public void OnDespawn()
+    public virtual void OnDespawn()
     {
         // コルーチン停止
         if (lifeCoroutine != null) StopCoroutine(lifeCoroutine);
