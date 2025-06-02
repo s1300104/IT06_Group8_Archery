@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.XR.Interaction.Toolkit; // XRGrabInteractableのイベント利用のため
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(XRGrabInteractable))] // XRGrabInteractableが同じオブジェクトにあることを必須とする
 public class Grenade : MonoBehaviour
 {
     [Header("State")]
@@ -24,11 +26,34 @@ public class Grenade : MonoBehaviour
     public AudioClip explosionSound;
     // private AudioSource audioSource; // AudioSourceコンポーネントで音を再生する場合
 
+    [Header("Socket & Despawn Settings")]
+    [Tooltip("手から離れた後、自動消滅するまでの時間（秒）")]
+    public float despawnTimeWhenDropped = 15.0f;
+
+    private GrenadeSocket originalSocket;
+    private bool wasPickedFromSocket = false;
+    private Coroutine timedDespawnCoroutine = null;
+
+    private XRGrabInteractable grabInteractable; // XRGrabInteractableへの参照
+
     void Awake()
     {
         // audioSource = GetComponent<AudioSource>(); // AudioSourceがない場合は追加する
         // if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
+        grabInteractable = GetComponent<XRGrabInteractable>();
+        if (grabInteractable == null)
+        {
+            Debug.LogError("Grenade: XRGrabInteractableコンポーネントが見つかりません！このスクリプトと同じGameObjectに必要です。", this);
+            enabled = false;
+            return;
+        }
+
+        // XRGrabInteractableのイベントを購読
+        grabInteractable.selectEntered.AddListener(HandleSelectEntered);
+        grabInteractable.selectExited.AddListener(HandleSelectExited);
+
+        // 既存のAwake処理
         if (proximityTrigger == null)
         {
             // 必須ではないが、警告を出す（近接爆発が機能しないため）
@@ -55,6 +80,65 @@ public class Grenade : MonoBehaviour
         {
             Debug.LogError("Grenade: GrenadeManagerのインスタンスが見つかりません！", this);
         }
+        // 初期状態では近接検知を無効（InitializeInSocketで再度設定する可能性あり）
+        if (proximityTrigger != null) proximityTrigger.enabled = false;
+    }
+
+    /// <summary>
+    /// GrenadeSocketSpawnerから呼び出され、どのソケットに配置されたかを初期設定します。
+    /// </summary>
+    public void InitializeInSocket(GrenadeSocket socket)
+    {
+        originalSocket = socket;
+        wasPickedFromSocket = false;
+        if (proximityTrigger != null) proximityTrigger.enabled = false; // ソケット内では近接検知無効
+    }
+
+    private void HandleSelectEntered(SelectEnterEventArgs args)
+    {
+        if (originalSocket != null && !wasPickedFromSocket)
+        {
+            originalSocket.OnGrenadeTaken();
+            wasPickedFromSocket = true;
+            Debug.Log("Grenade taken from socket for the first time.");
+            originalSocket = null; // ピンが抜かれるまではソケットとの関連を保持しても良いが、
+                                  // 一度持たれたら戻らない仕様なので、ここで切っても良い。
+                                  // OnPinPulledで最終的に切ることを推奨。
+        }
+
+        if (timedDespawnCoroutine != null)
+        {
+            StopCoroutine(timedDespawnCoroutine);
+            timedDespawnCoroutine = null;
+            Debug.Log("Dropped grenade picked up, despawn timer reset.");
+        }
+    }
+
+    private void HandleSelectExited(SelectExitEventArgs args)
+    {
+        if (wasPickedFromSocket && !isExploded)
+        {
+            if (timedDespawnCoroutine != null) StopCoroutine(timedDespawnCoroutine);
+            timedDespawnCoroutine = StartCoroutine(DespawnAfterDelayRoutine());
+            Debug.Log("Grenade dropped, starting despawn timer.");
+        }
+    }
+
+    private IEnumerator DespawnAfterDelayRoutine()
+    {
+        yield return new WaitForSeconds(despawnTimeWhenDropped);
+
+        // grabInteractable.isSelected は XRGrabInteractable が選択中かを示すプロパティ
+        if (!isExploded && (grabInteractable == null || !grabInteractable.isSelected))
+        {
+            Debug.Log($"Grenade {gameObject.name} despawned after being dropped for {despawnTimeWhenDropped} seconds.");
+            Destroy(gameObject);
+        }
+        else
+        {
+            // Debug.Log($"Despawn for {gameObject.name} cancelled (exploded or re-selected).");
+        }
+        timedDespawnCoroutine = null;
     }
 
     /// <summary>
@@ -79,6 +163,12 @@ public class Grenade : MonoBehaviour
         {
             proximityTrigger.enabled = true;
         }
+
+        // ピンが抜かれたら、ソケットとの関連は完全に断つ
+        if (wasPickedFromSocket && originalSocket != null)
+        {
+            originalSocket = null;
+        }
     }
 
     // ターゲットが近接検知トリガーに入ったときに呼び出される
@@ -101,6 +191,13 @@ public class Grenade : MonoBehaviour
         isExploded = true;
 
         Debug.Log("グレネード爆発！");
+
+        // 確実に時間自動消滅コルーチンを停止
+        if (timedDespawnCoroutine != null)
+        {
+            StopCoroutine(timedDespawnCoroutine);
+            timedDespawnCoroutine = null;
+        }
 
         // 爆発エフェクト生成
         if (explosionEffectPrefab != null)
@@ -141,10 +238,24 @@ public class Grenade : MonoBehaviour
 
     void OnDestroy()
     {
+        // イベント購読解除
+        if (grabInteractable != null)
+        {
+            grabInteractable.selectEntered.RemoveListener(HandleSelectEntered);
+            grabInteractable.selectExited.RemoveListener(HandleSelectExited);
+        }
+
         // GrenadeManagerから自身を登録解除
         if (GrenadeManager.Instance != null)
         {
             GrenadeManager.Instance.UnregisterGrenade();
+        }
+
+        // 確実に時間自動消滅コルーチンを停止
+        if (timedDespawnCoroutine != null)
+        {
+            StopCoroutine(timedDespawnCoroutine);
+            timedDespawnCoroutine = null;
         }
     }
 
