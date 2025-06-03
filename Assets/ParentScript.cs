@@ -19,6 +19,6 @@ public class ParentScript : MonoBehaviour
     public void MoveParent(Vector3 deltaPosition)
     {
         transform.localPosition = deltaPosition;
-        Debug.Log("親オブジェクトの座標をParentScriptから更新しました: " + transform.position);
+        Debug.Log("親オブジェクトの座標をParentScriptから更新しました: " + transform.localPosition);
     }
 }

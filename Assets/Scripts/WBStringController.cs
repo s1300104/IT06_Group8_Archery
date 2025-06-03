@@ -5,19 +5,26 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class WBStringController : MonoBehaviour
 {
-    //Vector3 ArrowPos;  // 矢の尾羽の位置を格納
-    Vector3 BowHandGpos;
-    Vector3 BowGrabGpos;         // 弓の持ち手の位置を格納
-    Vector3 BowGrabLpos;
+    Vector3 StringGrabGpos;     // 弦を持つ手のグローバル位置を格納
+    Vector3 InitStringLpos;     // 弦の初期ローカル位置を格納 
+    Vector3 StringGpos;
+    Vector3 InitHnadGrabStringLpos;
+    Vector3 BowGrabGpos;        // 弓の持ち手のグローバル位置を格納
+    Vector3 BowGrabLpos;        // 弓の持ち手のローカル位置を格納
+    private XRSocketInteractor socketInteractor;
     private XRGrabInteractable grabInteractable;
     private bool isGrabbing = false;
     private ParentScript parentScript;
-    //Vector3 BowStringPos;   // 弓の弦の位置を格納
-    //Vector3 BowTopPos;      // 弓の末弭の位置を格納
-    //Vector3 BowButtomPos;   // 弓の本弭の位置を格納
+    private GameObject currentArrow;
+    private Rigidbody currentArrowRigidbody;
+
+    
     // Start is called before the first frame update
     void Start()
     {
+        
+        InitStringLpos = GameObject.Find("WB.string").transform.localPosition;
+        InitHnadGrabStringLpos = GameObject.Find("Attach_string").transform.localPosition;
         grabInteractable = GetComponent<XRGrabInteractable>();
 
         // 親オブジェクトにアタッチされているParentScriptのインスタンスを取得
@@ -26,6 +33,8 @@ public class WBStringController : MonoBehaviour
         {
             Debug.LogWarning("親オブジェクトにParentScriptが見つかりませんでした。");
         }
+        SpawnNewArrow();
+
     }
 
     // Update is called once per frame
@@ -43,41 +52,106 @@ public class WBStringController : MonoBehaviour
             Debug.Log("オブジェクトは掴まれていません。");
         }
         
-        if(isGrabbing)
+        if (parentScript != null)
         {
-            if (parentScript != null)
-            {
-                BowHandGpos = GameObject.Find("Attach_string").transform.position;
-                BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
-                BowGrabLpos = GameObject.Find("Attach_bow").transform.localPosition;
+            StringGrabGpos = GameObject.Find("Attach_string").transform.position;
+            BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
+            BowGrabLpos = GameObject.Find("Attach_bow").transform.localPosition;
 
-                float newY = Vector3.Dot(BowHandGpos-BowGrabGpos, new Vector3(0.0f, BowGrabLpos.y, 0.0f));
-
+            float newY = Vector3.Dot(StringGrabGpos-BowGrabGpos, new Vector3(0.0f, BowGrabLpos.y, 0.0f));
+            if(newY >= -0.01f)newY = -0.01f;
+            if(newY <= -0.07f)newY = -0.07f;
+            if(isGrabbing)
+            {        
                 //transform.localPosition = ;
                 // ParentScriptの公開メソッドを呼び出して親の座標を変更
                 parentScript.MoveParent(new Vector3(0.0f, newY, 0.0f));
             }
-        }
-        // 掴んでいる間の処理
-        //if (isGrabbing)    
-        //{
-            
-        //}
-        /*
-        ArrowPos = GameObject.Find("Attach_arrow").transform.localPosition;
-        BowGrabPos = GameObject.Find("Attach_bow").transform.localPosition;
-        BowStringPos = GameObject.Find("Attach_string").transform.localPosition;
-        BowTopPos = GameObject.Find("WB.top.horn").transform.localPosition;
-        BowButtomPos = GameObject.Find("WB.down.horn").transform.localPosition;
+            else if(newY <= -0.03f)
+            {
+                ShootArrow(newY);
 
-        Debug.Log("弓 : " + BowGrabPos.x + ", " + BowGrabPos.y + ", "+ BowGrabPos.z );
-        Debug.Log("矢 : " + ArrowPos.x + ", " + ArrowPos.y + ", "+ ArrowPos.z );
+                transform.localPosition = InitHnadGrabStringLpos;
+                parentScript.MoveParent(InitStringLpos);
+            }
+            else
+            {
+                transform.localPosition = InitHnadGrabStringLpos;
+                parentScript.MoveParent(InitStringLpos);
+            }
+        }   
+    }
 
-        if(Vector3.Dot(BowStringPos-BowGrabPos, Vector3.Cross(BowTopPos-BowGrabPos, BowButtomPos-BowGrabPos)) != 0)
+
+    void SpawnNewArrow()
+    {
+        
+        GameObject arrowPrefab = (GameObject)Resources.Load("Arrow_stick");
+        Transform arrowSpawnPoint = this.transform;
+        if(arrowPrefab != null && arrowSpawnPoint != null)
         {
-            transform.localPosition = BowStringPos;
-            //transform.localPosition = new Vector3(BowStringPos.x, 0.0f, 0.0f);
+            currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
+            currentArrowRigidbody = currentArrow.GetComponent<Rigidbody>();
+            if(currentArrowRigidbody != null)
+            {
+                currentArrowRigidbody.isKinematic = true; // 最初は物理演算を無効化
+            }
+            else
+            {
+                Debug.Log("矢のプレハブにRigidbodyがありません！");
+            }
         }
-        */
+        else
+        {
+            Debug.Log("矢のプレハブまたは矢のスポーンポイントが設定されていません！");
+        }
+    }
+
+    void ShootArrow(float drawDistance)
+    {
+        float minForce = 1f;
+        float maxForce = 5f;
+        float maxDrawDistance = -0.07f;
+        socketInteractor = GameObject.Find("Arrow_nocking_point").GetComponent<XRSocketInteractor>();
+        socketInteractor.enabled = false;
+        /*if (currentArrow == null || currentArrowRigidbody == null)
+        {
+            Debug.LogError("矢が準備されていません！");
+            return;
+        }*/
+
+        // 射出力を計算 (引き距離に応じて線形補間)
+        float forceMagnitude = Mathf.Lerp(minForce, maxForce, drawDistance / maxDrawDistance);
+
+
+        StringGpos = GameObject.Find("WB.string").transform.position;
+        BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
+        // 矢を放つ方向 (弓のフォワード方向を基準に)
+        //Vector3 worldVec = transform.up;
+        //Vector3 shootDirection = transform.TransformDirection(worldVec); // 弓の向き
+        //Vector3 shootDirection = transform.up;
+        //Vector3 shootDirection = BowGrabGpos - StringGpos;
+        // わずかに上向きの力を加えることで、現実的な放物線にする
+        //shootDirection += Vector3.up * upwardForceMultiplier;
+
+        StringGrabGpos = GameObject.Find("Attach_string").transform.position;
+        BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
+        BowGrabLpos = GameObject.Find("Attach_bow").transform.localPosition;
+
+        float newY = Vector3.Dot(StringGrabGpos-BowGrabGpos, new Vector3(0.0f, BowGrabLpos.y, 0.0f));
+        if(newY >= -0.01f)newY = -0.01f;
+        if(newY <= -0.07f)newY = -0.07f;
+        Vector3 shootDirection = transform.TransformDirection(new Vector3(0.0f, newY, 0.0f));
+        shootDirection.Normalize(); // 方向ベクトルを正規化
+
+        // 物理演算を有効化
+        currentArrowRigidbody.isKinematic = false;
+
+        // 矢に力を加える
+        currentArrowRigidbody.AddForce(shootDirection * forceMagnitude, ForceMode.VelocityChange); // VelocityChangeは即座に速度を変化させる
+
+        // 矢を放った後の処理 (例: 弦の音を再生)
+        // AudioManager.PlaySound("BowRelease"); // サウンドマネージャーがある場合
+        //socketInteractor.enabled = true;
     }
 }
