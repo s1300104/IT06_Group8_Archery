@@ -1,8 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.XR.Interaction.Toolkit; // XRGrabInteractableのため
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(FixedJoint))] // FixedJointが必須
+[RequireComponent(typeof(XRGrabInteractable))] // ピンも掴めるようにXRGrabInteractableが必要
 public class GrenadePin : MonoBehaviour
 {
     [Tooltip("ピンが引き抜かれた後に消滅するまでの時間（秒）")]
@@ -11,12 +13,14 @@ public class GrenadePin : MonoBehaviour
     private Grenade parentGrenade; // 親となるグレネードのスクリプトへの参照
     private Rigidbody rb;
     private FixedJoint joint;
+    private XRGrabInteractable grabInteractable; // ピンのXRGrabInteractable
     private bool isPulled = false;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         joint = GetComponent<FixedJoint>();
+        grabInteractable = GetComponent<XRGrabInteractable>();
 
         // 親オブジェクトからGrenadeスクリプトを取得することを試みる
         // ピンがグレネードの子として正しく設定されている必要がある
@@ -42,6 +46,28 @@ public class GrenadePin : MonoBehaviour
         {
             Debug.LogError("GrenadePin: FixedJointのConnectedBodyが設定されておらず、親グレネードにRigidbodyもありません。", this);
         }
+
+        // ピンのXRGrabInteractableイベントを購読
+        grabInteractable.selectEntered.AddListener(OnPinGrabbed);
+        grabInteractable.selectExited.AddListener(OnPinReleased);
+    }
+
+    // ピンが掴まれた時に呼び出される
+    private void OnPinGrabbed(SelectEnterEventArgs args)
+    {
+        if (parentGrenade != null && !isPulled)
+        {
+            parentGrenade.NotifyPinInteractionState(true); // 本体にピンが掴まれたことを通知
+        }
+    }
+
+    // ピンが離された時に呼び出される
+    private void OnPinReleased(SelectExitEventArgs args)
+    {
+        if (parentGrenade != null && !isPulled) // まだ引き抜かれていない場合のみ
+        {
+            parentGrenade.NotifyPinInteractionState(false); // 本体にピンが離されたことを通知
+        }
     }
 
     // FixedJointが破壊されたときに呼び出される
@@ -52,13 +78,18 @@ public class GrenadePin : MonoBehaviour
 
         Debug.Log("ピンが引き抜かれました！");
 
+        // ピンが抜かれたら、ピンのインタラクション状態通知はもう不要なのでイベント購読解除
+        grabInteractable.selectEntered.RemoveListener(OnPinGrabbed);
+        grabInteractable.selectExited.RemoveListener(OnPinReleased);
+
         if (parentGrenade != null)
         {
             parentGrenade.OnPinPulled(); // 親グレネードにピンが抜かれたことを通知
+            parentGrenade.NotifyPinInteractionState(false); // ピンとのインタラクション終了を通知
         }
 
         // ピンが本体から分離したので、もし親子関係が残っていれば解除する（通常は不要）
-        // transform.SetParent(null); // 物理挙動のために独立させる
+        transform.SetParent(null); // 物理挙動のために独立させる
 
         // Rigidbodyが物理法則に従うように設定（AwakeでUseGravity=On, IsKinematic=Offを推奨）
         // rb.isKinematic = false;
@@ -72,6 +103,16 @@ public class GrenadePin : MonoBehaviour
     {
         yield return new WaitForSeconds(disappearDelay);
         Destroy(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        //念のため、オブジェクト破棄時にもイベント購読を解除
+        if (grabInteractable != null)
+        {
+            grabInteractable.selectEntered.RemoveListener(OnPinGrabbed);
+            grabInteractable.selectExited.RemoveListener(OnPinReleased);
+        }
     }
 
     // (オプション) プレイヤーがピンを掴んだ際に、JointのBreakForceを一時的に下げて抜きやすくするなどの処理も考えられる

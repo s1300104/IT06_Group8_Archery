@@ -81,12 +81,12 @@ public class GrenadeSocketSpawner : MonoBehaviour
                 }
                 else
                 {
-                    // Debug.Log("GrenadeSocketSpawner: グレネードの最大数に達しているか、GrenadeManagerが見つかりません。");
+                    Debug.Log("GrenadeSocketSpawner: グレネードの最大数に達しているか、GrenadeManagerが見つかりません。");
                     return; // 生成できない場合はこのサイクルを終了
                 }
             }
         }
-        // Debug.Log("GrenadeSocketSpawner: 空きソケットがありません。");
+        Debug.Log("GrenadeSocketSpawner: 空きソケットがありません。");
     }
 
     private void HandleBonusTargetDestroyed()
@@ -119,7 +119,7 @@ public class GrenadeSocketSpawner : MonoBehaviour
                 }
                 else
                 {
-                    // Debug.Log("GrenadeSocketSpawner (Refill): グレネードの最大数に達しているか、GrenadeManagerが見つかりません。リフィルを中断します。");
+                    Debug.Log("GrenadeSocketSpawner (Refill): グレネードの最大数に達しているか、GrenadeManagerが見つかりません。リフィルを中断します。");
                     break; // 最大数に達したらリフィルを中断
                 }
             }

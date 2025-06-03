@@ -35,11 +35,20 @@ public class Grenade : MonoBehaviour
     private Coroutine timedDespawnCoroutine = null;
 
     private XRGrabInteractable grabInteractable; // XRGrabInteractableへの参照
+    private Rigidbody rb; // Rigidbodyへの参照
+
+    private bool isPinBeingHeld = false; // ピンが現在掴まれているか
+
+    private Coroutine delayedKinematicChangeCoroutine = null;
+    [Tooltip("ピンを離してから本体のKinematicをfalseにするまでの遅延時間（秒）")]
+    private float delayBeforeNonKinematicAfterPinRelease = 0.1f; // 短い遅延時間
 
     void Awake()
     {
         // audioSource = GetComponent<AudioSource>(); // AudioSourceがない場合は追加する
         // if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
+        rb = GetComponent<Rigidbody>();
 
         grabInteractable = GetComponent<XRGrabInteractable>();
         if (grabInteractable == null)
@@ -53,7 +62,6 @@ public class Grenade : MonoBehaviour
         grabInteractable.selectEntered.AddListener(HandleSelectEntered);
         grabInteractable.selectExited.AddListener(HandleSelectExited);
 
-        // 既存のAwake処理
         if (proximityTrigger == null)
         {
             // 必須ではないが、警告を出す（近接爆発が機能しないため）
@@ -91,6 +99,15 @@ public class Grenade : MonoBehaviour
     {
         originalSocket = socket;
         wasPickedFromSocket = false;
+
+        /* if (rb != null)
+        {
+            rb.isKinematic = true;
+            // rb.useGravity = false;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        } */
+
         if (proximityTrigger != null) proximityTrigger.enabled = false; // ソケット内では近接検知無効
     }
 
@@ -106,6 +123,14 @@ public class Grenade : MonoBehaviour
                                   // OnPinPulledで最終的に切ることを推奨。
         }
 
+        // もしピン離脱後のKinematic変更遅延コルーチンが動いていたら停止
+        if (delayedKinematicChangeCoroutine != null)
+        {
+            StopCoroutine(delayedKinematicChangeCoroutine);
+            delayedKinematicChangeCoroutine = null;
+            // Debug.Log("Grenade grabbed, stopping any delayed kinematic change.");
+        }
+
         if (timedDespawnCoroutine != null)
         {
             StopCoroutine(timedDespawnCoroutine);
@@ -118,6 +143,15 @@ public class Grenade : MonoBehaviour
     {
         if (wasPickedFromSocket && !isExploded)
         {
+            // ★★★ 離された瞬間に物理挙動を開始させる ★★★
+            if (rb != null && rb.isKinematic)
+            {
+                rb.isKinematic = false;
+                // Gravityは手を離した後、自動で使われるので
+                // UseGravityをonにする必要はない
+            }
+            Debug.Log($"Grenade {gameObject.name} released. Kinematic: {rb.isKinematic}, Gravity: {rb.useGravity}");
+
             if (timedDespawnCoroutine != null) StopCoroutine(timedDespawnCoroutine);
             timedDespawnCoroutine = StartCoroutine(DespawnAfterDelayRoutine());
             Debug.Log("Grenade dropped, starting despawn timer.");
@@ -142,14 +176,93 @@ public class Grenade : MonoBehaviour
     }
 
     /// <summary>
+    /// GrenadePinから呼び出され、ピンとのインタラクション状態を更新します。
+    /// </summary>
+    /// <param name="isPinHeld">ピンが現在持たれているか</param>
+    public void NotifyPinInteractionState(bool isPinHeld)
+    {
+        if (isExploded || hasPinPulled) return; // 既に処理済みなら何もしない
+
+        bool previousPinState = isPinBeingHeld;
+        isPinBeingHeld = isPinHeld;
+
+        if (grabInteractable.isSelected) // グレネード本体が現在誰かに持たれている場合のみ影響
+        {
+            // 既存の遅延Kinematic変更コルーチンがあれば停止
+            if (delayedKinematicChangeCoroutine != null)
+            {
+                StopCoroutine(delayedKinematicChangeCoroutine);
+                delayedKinematicChangeCoroutine = null;
+            }
+            if (isPinBeingHeld)
+            {
+                // ピンが持たれたら、グレネード本体をKinematicにして安定させる
+                rb.isKinematic = true;
+                // rb.useGravity = false; // isKinematic=trueなら重力は効かないが、念のため
+                Debug.Log("Pin is being held, Grenade body set to Kinematic.");
+            }
+            else
+            {
+                // ピンが離されたら、少し遅れて本体の物理を戻す
+                if (previousPinState == true) // 直前までピンが持たれていた場合のみ遅延処理を開始
+                {
+                    delayedKinematicChangeCoroutine = StartCoroutine(MakeNonKinematicAfterDelayRoutine());
+                }
+                Debug.Log("Pin released (but not pulled), Grenade body physics potentially restored by XRI (should be non-kinematic).");
+            }
+        }
+    }
+
+    private IEnumerator MakeNonKinematicAfterDelayRoutine()
+    {
+        yield return new WaitForSeconds(delayBeforeNonKinematicAfterPinRelease);
+
+        // このコルーチンが開始された後、ピンが再度掴まれたり、グレネードが捨てられたり、
+        // ピンが完全に抜かれたりしていないか確認する。
+        // isPinBeingHeld: ピンが再度掴まれていれば、Kinematicのままにするべき
+        // !grabInteractable.isSelected: グレネードが捨てられていれば、HandleSelectExitedで物理状態が処理される
+        // hasPinPulled: ピンが抜かれていれば、OnPinPulledで物理状態が処理される
+        if (!isPinBeingHeld && grabInteractable.isSelected && !hasPinPulled && !isExploded)
+        {
+            rb.isKinematic = false;
+            // Velocity Trackingの場合、掴んでいる間はuseGravityはXRIに任せる(通常false)
+            // rb.useGravity = false; // Velocity Tracking中はXRIがこれを制御
+            Debug.Log($"Grenade body made non-kinematic after pin release delay. Kinematic: {rb.isKinematic}");
+        }
+        else
+        {
+            // Debug.Log("Delayed non-kinematic change cancelled due to state change (pin re-held, grenade dropped, pin pulled, or exploded).");
+        }
+        delayedKinematicChangeCoroutine = null;
+    }
+
+    /// <summary>
     /// GrenadePinから呼び出され、ピンが抜かれたことを処理します。
     /// </summary>
     public void OnPinPulled()
     {
         if (isExploded || hasPinPulled) return; // 既に爆発済みかピンが抜かれていれば何もしない
 
+        // ピンが抜かれる前に動いていた可能性のある遅延Kinematic変更コルーチンを停止
+        if (delayedKinematicChangeCoroutine != null)
+        {
+            StopCoroutine(delayedKinematicChangeCoroutine);
+            delayedKinematicChangeCoroutine = null;
+        }
+
         hasPinPulled = true;
+        isPinBeingHeld = false; // ピンが抜かれたら、もう持たれている状態ではない
         Debug.Log("グレネードのピンが抜かれ、爆発準備完了。");
+
+        if (rb != null)
+        {
+            rb.isKinematic = false; // ピンが抜けたら確実に非Kinematic
+            // もし本体がまだ掴まれていない状態でピンが抜かれたら（ありえないが）、重力ON
+            if (!grabInteractable.isSelected)
+            {
+                rb.useGravity = true;
+            }
+        }
 
         // ピン抜き効果音再生
         if (pinPullSound != null /*&& audioSource != null*/)
