@@ -53,7 +53,7 @@ public class PooledTarget : MonoBehaviour, IPoolable
 
         // TargetSpawner のカウントデクリメント
         var spawner = FindObjectOfType<TargetSpawner>(); // パフォーマンス向上のため、可能ならキャッシュまたは別の方法で参照を取得
-        spawner?.OnTargetDespawned();
+        spawner?.OnTargetDespawned(this);
                                      // エフェクト停止など後片付け
     }
 

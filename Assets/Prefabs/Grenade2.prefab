@@ -129,6 +129,7 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   pinPullSound: {fileID: 0}
   explosionSound: {fileID: 0}
+  despawnTimeWhenDropped: 15
 --- !u!114 &8464985397612811687
 MonoBehaviour:
   m_ObjectHideFlags: 0
