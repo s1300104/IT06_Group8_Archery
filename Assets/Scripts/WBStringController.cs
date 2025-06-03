@@ -109,8 +109,8 @@ public class WBStringController : MonoBehaviour
 
     void ShootArrow(float drawDistance)
     {
-        float minForce = 1f;
-        float maxForce = 5f;
+        float minForce = 10f;
+        float maxForce = 50f;
         float maxDrawDistance = -0.07f;
         socketInteractor = GameObject.Find("Arrow_nocking_point").GetComponent<XRSocketInteractor>();
         socketInteractor.enabled = false;
@@ -147,8 +147,10 @@ public class WBStringController : MonoBehaviour
         // 物理演算を有効化
         currentArrowRigidbody.isKinematic = false;
 
+        currentArrowRigidbody.useGravity = true;
+
         // 矢に力を加える
-        currentArrowRigidbody.AddForce(shootDirection * forceMagnitude, ForceMode.VelocityChange); // VelocityChangeは即座に速度を変化させる
+        currentArrowRigidbody.AddForce(-shootDirection * forceMagnitude, ForceMode.VelocityChange); // VelocityChangeは即座に速度を変化させる
 
         // 矢を放った後の処理 (例: 弦の音を再生)
         // AudioManager.PlaySound("BowRelease"); // サウンドマネージャーがある場合
