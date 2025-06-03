@@ -1,0 +1,63 @@
+	
+- - - - - - - - - - - - - - - - - - - - - Little Ghost(PBR-HQ)- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+This pack contains 3d Model and Animation's of a cute Little Ghost, that can used in any type of your games.
+This is a high quality version of the previous package named "Little Ghost low poly".This pack offers, highly detailed model's 
+with 2K PBR textures in it.You can use both packages based on your game theme & performance.
+
+Character & Props details:
+
+- Male ghost : 3 variation's(White ghost, Bloody ghost & Muddy ghost) 
+- Female ghost : 2 variation's
+- Axe(Iron & Golden Axe)
+- Devil Head
+- Witch hat : Gives your ghost a magical look. Pink and Blue colors(Clean and blooded)
+
+
+Technical Details:-
+				
+		- Vertex count : Male ghost(1136), Female ghost(1178), Axe(600), Hat(884), Devil head(254)
+		- Tris count :  Male ghost(2268), Femal ghost(2352), Axe(1196), Hat(1764), Devil head(476)
+		- Animations : 11 (Idle, Run/Fly, Attack, Attack-2(with Axe), Look, Hide, Wake up, Hit, Dance1, Dance2, Playing)
+		- Texture Variations : 3(Male ghost), 3(Props), 2(Female ghost)
+		- Used Material(s) : Unity Standard Shader
+		- Texture maps : Albedo/Base Color
+		- Texture Size : 2048(.png)
+		- Simple colliders attached
+
+Features:-
+	- Customizable character's
+	- PBR HQ Textures
+	- Many cute animations included
+	- Include many shape, color variations
+	- Props with multiple textures included
+	- Smooth animations	
+	- Mobile, AR supported
+
+Folder details:-
+
+	Materials : Where the materials for the model located.
+	
+	Meshes : Contain FBX format of the 3d model.
+	
+	Textures : Contains Textures, that are in (.PNG) file format
+	
+	(Other folders - Prefabs, Scenes, Animations)
+Notes:
+
+Support URP, HDRP, LWRP, Build-in Render Pipeline
+This project is submitted using Built-in Render Pipeline. If you are not using Built-in pipeline, you need to manually reset the shader of the model to avoid it being pink
+
+How to use:-
+	
+	Simply drag and drop the prefab to your scene and use it.
+	(Prefab(s) located under 
+	Asset > Little Ghost HQ > Prefabs).
+
+..................................................................................
+
+About Me : "SR Studios Kerala", Indie Game developer & 3D Artist from Alappuzha, Kerala, India
+
+Contact : srstudioskerala@gmail.com
+
+................Thank you for downloading this package................................
