@@ -1433,6 +1433,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2019409212518310939, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 3846639435220871037, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.008
+      objectReference: {fileID: 0}
     - target: {fileID: 6743819880672611353, guid: 68303d003c6bcfe409461162e645159a,
         type: 3}
       propertyPath: trajectoryLineRenderer
@@ -1441,7 +1451,7 @@ PrefabInstance:
     - target: {fileID: 7078033664584610116, guid: 68303d003c6bcfe409461162e645159a,
         type: 3}
       propertyPath: m_Name
-      value: Wooden Bow (1)
+      value: Wooden Bow
       objectReference: {fileID: 0}
     - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
         type: 3}
@@ -1496,7 +1506,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7078033664584610116, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1580452507}
   m_SourcePrefab: {fileID: 100100000, guid: 68303d003c6bcfe409461162e645159a, type: 3}
 --- !u!1 &292589201
 GameObject:
@@ -2554,6 +2568,7 @@ MonoBehaviour:
   bonusTargetPrefab: {fileID: 3429486981632920889, guid: a6eb17f62fab0964f9fcbcd80e37cb40,
     type: 3}
   initialBonusPoolSize: 5
+  playerTransform: {fileID: 0}
 --- !u!1 &406875774
 GameObject:
   m_ObjectHideFlags: 0
@@ -6844,6 +6859,27 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1580452500 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7078033664584610116, guid: 68303d003c6bcfe409461162e645159a,
+    type: 3}
+  m_PrefabInstance: {fileID: 281077080}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1580452507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1580452500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4d5f718644ea9840a2e01015ea49c1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrowGrabInteractable: {fileID: 0}
+  bowGrabInteractable: {fileID: 0}
+  isHoldingBow: 0
 --- !u!1 &1616970152
 GameObject:
   m_ObjectHideFlags: 0

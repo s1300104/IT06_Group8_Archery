@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1708162831682572823}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Attach_arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,15 +45,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 100004, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -347,7 +347,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifetime: 10
-  proximityTrigger: {fileID: 7332091016935723427}
 --- !u!1 &5141404418043366862 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100004, guid: 5b4335161d9fa504c9ec268fe6a0a12b,

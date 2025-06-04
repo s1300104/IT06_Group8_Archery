@@ -16,11 +16,15 @@ public class WBStringController : MonoBehaviour
     float maxForce = 50f;       // 矢の最高速度
     float maxDrawDistance = -0.07f;// 弦の最長の引き
     private XRSocketInteractor socketInteractor;
-    private XRGrabInteractable grabInteractable;
+    private XRGrabInteractable stringGrabInteractable;
+    private XRGrabInteractable bowGrabInteractable;
     private bool isGrabbing = false;
     private ParentScript parentScript;
     private GameObject currentArrow;
     private Rigidbody currentArrowRigidbody;
+    private BoxCollider currentArrowCollider;
+    private Vector3 ArrowColliderSize;
+    private Vector3 ArrowColliderCenter;
     // 弓と矢の衝突判定
     public GameObject _colA;
     public GameObject _colB;
@@ -40,7 +44,8 @@ public class WBStringController : MonoBehaviour
         
         InitStringLpos = GameObject.Find("WB.string").transform.localPosition;
         InitHnadGrabStringLpos = GameObject.Find("Attach_string").transform.localPosition;
-        grabInteractable = GetComponent<XRGrabInteractable>();
+        stringGrabInteractable = GetComponent<XRGrabInteractable>();
+        bowGrabInteractable = GameObject.Find("Wooden Bow").GetComponent<XRGrabInteractable>();
 
         // 親オブジェクトにアタッチされているParentScriptのインスタンスを取得
         parentScript = GetComponentInParent<ParentScript>();
@@ -56,8 +61,18 @@ public class WBStringController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        if (grabInteractable.isSelected)
+            
+        if(bowGrabInteractable.isSelected)
+        {
+            currentArrowCollider.size = new Vector3(ArrowColliderSize.x, ArrowColliderSize.y / 2.0f, ArrowColliderSize.z);
+            currentArrowCollider.center = new Vector3(ArrowColliderCenter.x, ArrowColliderCenter.y * 2.0f, ArrowColliderCenter.z);
+        }
+        else
+        {
+            currentArrowCollider.size = ArrowColliderSize;
+            currentArrowCollider.center = ArrowColliderCenter;
+        }                
+        if (stringGrabInteractable.isSelected)
         {
             isGrabbing = true;
             //Debug.Log("オブジェクトが掴まれています！");
@@ -74,7 +89,7 @@ public class WBStringController : MonoBehaviour
             StringGrabGpos = GameObject.Find("Attach_string").transform.position;
             BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
             BowGrabLpos = GameObject.Find("Attach_bow").transform.localPosition;
-
+            
             float newY = Vector3.Dot(StringGrabGpos-BowGrabGpos, new Vector3(0.0f, BowGrabLpos.y, 0.0f));
             if(newY >= -0.01f)newY = -0.01f;
             if(newY <= -0.07f)newY = -0.07f;
@@ -122,6 +137,9 @@ public class WBStringController : MonoBehaviour
         if(arrowPrefab != null && arrowSpawnPoint != null)
         {
             currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
+            currentArrowCollider = currentArrow.GetComponent<BoxCollider>();
+            ArrowColliderSize = new Vector3(currentArrowCollider.size.x, currentArrowCollider.size.y, currentArrowCollider.size.z);
+            ArrowColliderCenter = new Vector3(currentArrowCollider.center.x, currentArrowCollider.center.y, currentArrowCollider.center.z);
             currentArrowRigidbody = currentArrow.GetComponent<Rigidbody>();
             if(currentArrowRigidbody != null)
             {
