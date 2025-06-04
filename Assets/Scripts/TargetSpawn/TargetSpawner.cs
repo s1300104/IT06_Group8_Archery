@@ -21,6 +21,13 @@ public class TargetSpawner : MonoBehaviour
     public Vector3 spawnAreaCenter;
     public Vector3 spawnAreaSize;
 
+    [Header("Spawn Restriction Settings")]
+    [Tooltip("中央禁止領域の中心の、spawnAreaCenterからの相対オフセット")]
+    public Vector3 exclusionZoneOffset = Vector3.zero; // 通常は(0,0,0)でspawnAreaCenterと中心を共有
+
+    [Tooltip("中央禁止領域のサイズ (XYZ)")]
+    public Vector3 exclusionZoneSize = Vector3.zero; // サイズが0なら禁止領域なしとして扱う
+
     void Start()
     {
         StartCoroutine(SpawnTargetCoroutine());
@@ -70,14 +77,51 @@ public class TargetSpawner : MonoBehaviour
 
     void SpawnSpecificTarget(bool isBonus)
     {
-        var x = Random.Range(spawnAreaCenter.x - spawnAreaSize.x / 2, spawnAreaCenter.x + spawnAreaSize.x / 2);
-        var y = Random.Range(spawnAreaCenter.y - spawnAreaSize.y / 2, spawnAreaCenter.y + spawnAreaSize.y / 2);
-        var z = Random.Range(spawnAreaCenter.z - spawnAreaSize.z / 2, spawnAreaCenter.z + spawnAreaSize.z / 2);
-        var pos = new Vector3(x, y, z);
+        Vector3 spawnPosition = Vector3.zero;
+        bool positionIsValid = false;
+        int maxSpawnRetries = 20; // 有効な位置を見つけるまでの最大試行回数
+
+        for (int i = 0; i < maxSpawnRetries; i++)
+        {
+            // 1. まず、全体のスポーン範囲内でランダムな座標を生成
+            float rawX = Random.Range(spawnAreaCenter.x - spawnAreaSize.x / 2f, spawnAreaCenter.x + spawnAreaSize.x / 2f);
+            // 2. Y座標は spawnAreaCenter.y から 上限までの範囲に限定 (上半球)
+            float restrictedY = Random.Range(spawnAreaCenter.y, spawnAreaCenter.y + spawnAreaSize.y / 2f);
+            float rawZ = Random.Range(spawnAreaCenter.z - spawnAreaSize.z / 2f, spawnAreaCenter.z + spawnAreaSize.z / 2f);
+            
+            spawnPosition = new Vector3(rawX, restrictedY, rawZ);
+    
+            // 3. 禁止領域のチェック (exclusionZoneSizeが0より大きい場合のみ)
+            if (exclusionZoneSize.x > 0 || exclusionZoneSize.y > 0 || exclusionZoneSize.z > 0)
+            {
+                Vector3 actualExclusionCenter = spawnAreaCenter + exclusionZoneOffset;
+                Vector3 exclusionMin = actualExclusionCenter - exclusionZoneSize / 2f;
+                Vector3 exclusionMax = actualExclusionCenter + exclusionZoneSize / 2f;
+    
+                bool isInExclusionX = spawnPosition.x >= exclusionMin.x && spawnPosition.x <= exclusionMax.x;
+                bool isInExclusionY = spawnPosition.y >= exclusionMin.y && spawnPosition.y <= exclusionMax.y;
+                bool isInExclusionZ = spawnPosition.z >= exclusionMin.z && spawnPosition.z <= exclusionMax.z;
+    
+                if (isInExclusionX && isInExclusionY && isInExclusionZ)
+                {
+                    continue; // 禁止領域内なので再試行
+                }
+            }
+    
+            // すべての条件を満たしたので、この位置は有効
+            positionIsValid = true;
+            break; 
+        }
+
+        if (!positionIsValid)
+        {
+            Debug.LogWarning("TargetSpawner: 有効なスポーン位置が見つかりませんでした。今回のスポーンは見送ります。");
+            return; // 有効な位置が見つからなければスポーンしない
+        }
 
         if (isBonus)
         {
-            BonusTarget bonusTarget = TargetPoolManager.Instance.SpawnBonusTarget(pos);
+            BonusTarget bonusTarget = TargetPoolManager.Instance.SpawnBonusTarget(spawnPosition);
             if (bonusTarget != null)
             {
                 currentBonusTargetCount++;
@@ -86,7 +130,7 @@ public class TargetSpawner : MonoBehaviour
         }
         else
         {
-            PooledTarget regularTarget = TargetPoolManager.Instance.SpawnRegularTarget(pos);
+            PooledTarget regularTarget = TargetPoolManager.Instance.SpawnRegularTarget(spawnPosition);
             if (regularTarget != null)
             {
                 currentRegularTargetCount++;
@@ -114,6 +158,26 @@ public class TargetSpawner : MonoBehaviour
                 currentRegularTargetCount--;
                 Debug.Log("Regular Target Despawned. Count: " + currentRegularTargetCount);
             }
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // 全体のスポーン範囲
+        Gizmos.color = new Color(0, 1, 0, 0.3f); // 緑色で半透明
+        Gizmos.DrawCube(spawnAreaCenter, spawnAreaSize);
+
+        // 上半球のみの範囲 (簡易的に元の範囲の上半分を示す)
+        Gizmos.color = new Color(0, 0, 1, 0.3f); // 青色で半透明
+        Vector3 upperHalfCenter = new Vector3(spawnAreaCenter.x, spawnAreaCenter.y + spawnAreaSize.y / 4f, spawnAreaCenter.z);
+        Vector3 upperHalfSize = new Vector3(spawnAreaSize.x, spawnAreaSize.y / 2f, spawnAreaSize.z);
+        Gizmos.DrawCube(upperHalfCenter, upperHalfSize);
+
+        // 禁止領域 (exclusionZoneSizeが0より大きい場合のみ)
+        if (exclusionZoneSize.x > 0 || exclusionZoneSize.y > 0 || exclusionZoneSize.z > 0)
+        {
+            Gizmos.color = new Color(1, 0, 0, 0.4f); // 赤色で半透明
+            Gizmos.DrawCube(spawnAreaCenter + exclusionZoneOffset, exclusionZoneSize);
         }
     }
 }
