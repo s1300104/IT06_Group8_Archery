@@ -109,8 +109,12 @@ public class WBStringController : MonoBehaviour
             if(isGrabbing)
             {        
                 // 弦を引く距離が一定以上になったら音を再生
-                if (newY <= -0.03f && StringPulled) { bowAudioSource.PlayOneShot(bowDrawSound); Debug.Log("pull arrow sound");}
-                StringPulled = false;
+                if (newY <= -0.03f && StringPulled) { 
+                    bowAudioSource.PlayOneShot(bowDrawSound); 
+                    Debug.Log("pull arrow sound");
+                    StringPulled = false;
+                }
+                if(newY > -0.03f){StringPulled = true;}
                 // 軌道ガイドの更新
                 UpdateTrajectoryGuide(BowGrabGpos, initialVelocity);
                 trajectoryLineRenderer.enabled = true; // ガイドを表示
