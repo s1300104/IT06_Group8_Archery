@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1092741472892007372}
   - component: {fileID: -1291578333372571807}
   - component: {fileID: -6454623235240162842}
+  - component: {fileID: -5010030297947311008}
   m_Layer: 0
   m_Name: Ghost_Zigzag
   m_TagString: Untagged
@@ -113,6 +114,19 @@ MonoBehaviour:
   lifeTime: 3
   movementPatternForBonus: 0
   overrideDefaultMovement: 1
+--- !u!114 &-5010030297947311008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092741472892007369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b412a365e172994b90e26e2a3abc9cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scoreValue: 50
 --- !u!1001 &1092741471585585904
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1092741472892007372}
   - component: {fileID: 8779644828338446101}
   - component: {fileID: 2387662465013101719}
+  - component: {fileID: 7268420014469603970}
   m_Layer: 0
   m_Name: Ghost
   m_TagString: Untagged
@@ -123,6 +124,19 @@ MonoBehaviour:
   moveDuration: 3
   waypointAreaSize: {x: 10, y: 5, z: 10}
   timeToReachWaypoint: 3
+--- !u!114 &7268420014469603970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092741472892007369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b412a365e172994b90e26e2a3abc9cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scoreValue: 10
 --- !u!1001 &1092741471585585904
 PrefabInstance:
   m_ObjectHideFlags: 0
