@@ -88,7 +88,8 @@ public class BonusTarget : PooledTarget // PooledTargetを継承
 
         if (effectToDespawn != null)
         {
-            Instantiate(effectToDespawn, transform.position, Quaternion.identity);
+            GameObject effect = Instantiate(effectToDespawn, transform.position, Quaternion.identity);
+            Destroy(effect, 1f);
         }
         if (soundToPlay != null)
         {

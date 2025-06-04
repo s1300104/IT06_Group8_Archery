@@ -133,7 +133,8 @@ public class PooledTarget : MonoBehaviour, IPoolable
 
         if (effectToDespawn != null)
         {
-            Instantiate(effectToDespawn, transform.position, Quaternion.identity);
+            GameObject effect = Instantiate(effectToDespawn, transform.position, Quaternion.identity);
+            Destroy(effect, 1f);
         }
         if (soundToPlay != null)
         {

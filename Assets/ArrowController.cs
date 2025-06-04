@@ -63,7 +63,7 @@ public class ArrowController : MonoBehaviour
             // エフェクトとサウンドを再生
             HandleEffectAndSound(other.gameObject, hitEffectPrefab, targetHitSound);
             Debug.Log("爆発によりターゲット " + other.name + " を破壊します。");
-            TargetPoolManager.Instance.ReturnTarget(target); // ターゲットをプールに戻す
+            TargetPoolManager.Instance.ReturnTarget(target, DespawnReason.PlayerAction); // ターゲットをプールに戻す
             DestroyArrow();
             
             enabled = false;
