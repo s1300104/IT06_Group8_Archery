@@ -3,6 +3,8 @@
 * s1300104
 * s1300141
 * s1300154
+## Project Slides
+https://docs.google.com/presentation/d/1d6mo-6wlnNj4PSG31A7X7_9myY0NLjmKqFvLKhw99CU/edit?slide=id.g36144a294b6_0_16#slide=id.g36144a294b6_0_16
 ## References
 ### Implement bow and arrow system in VR
 [Youtube Playlist: Reference for Archery](https://youtube.com/playlist?list=PLZtsyUFIPoUs07PEZGQ9psxL8dMzg9EfJ&si=JrGW6MSEP3JawHBK)<br>
