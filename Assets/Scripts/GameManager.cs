@@ -81,7 +81,8 @@ public class GameManager : MonoBehaviour
     {
         if (_isGameActive)
         {
-            _currentScore += amount;
+            int count = TargetPoolManager.Instance.getDefeatCount();
+            _currentScore = count;
             UpdateScoreUI();
             Debug.Log($"Score updated: {_currentScore}");
         }

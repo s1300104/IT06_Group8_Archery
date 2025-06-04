@@ -16,6 +16,8 @@ public class TargetPoolManager : MonoBehaviour
 
     [Header("Player Reference")]
     public Transform playerTransform; // プレイヤーのTransformを設定
+    
+    private int DefeatCount = 0;
 
     void Awake()
     {
@@ -106,10 +108,17 @@ public class TargetPoolManager : MonoBehaviour
             Debug.LogWarning($"Target {t.gameObject.name} could not be returned to any pool. Destroying directly.");
             Destroy(t.gameObject);
         }
+
+        if(reason == DespawnReason.PlayerAction) DefeatCount++;
     }
 
     public void ReturnTarget(PooledTarget t)
     {
         ReturnTarget(t, DespawnReason.Natural); // デフォルトはNaturalとする
+    }
+
+    public int getDefeatCount()
+    {
+        return DefeatCount;
     }
 }
