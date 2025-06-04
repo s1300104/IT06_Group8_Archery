@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Assignment/Takayanagi_Koki Room.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/0_TitleScene.unity
     guid: 2026cae034bc15f4b9c59dac7265f2a0
   - enabled: 1
