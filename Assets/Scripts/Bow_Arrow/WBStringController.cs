@@ -11,6 +11,10 @@ public class WBStringController : MonoBehaviour
     Vector3 InitHnadGrabStringLpos;
     Vector3 BowGrabGpos;        // 弓の持ち手のグローバル位置を格納
     Vector3 BowGrabLpos;        // 弓の持ち手のローカル位置を格納
+    Transform arrowSpawnPoint;
+    float minForce = 10f;       // 矢の最低速度
+    float maxForce = 50f;       // 矢の最高速度
+    float maxDrawDistance = -0.07f;// 弦の最長の引き
     private XRSocketInteractor socketInteractor;
     private XRGrabInteractable grabInteractable;
     private bool isGrabbing = false;
@@ -22,6 +26,11 @@ public class WBStringController : MonoBehaviour
     public GameObject _colB;
     public GameObject _colC;
     public bool ignoreCollision;
+    [Header("放物線ガイド設定")]
+    [SerializeField] private LineRenderer trajectoryLineRenderer; // Line Rendererコンポーネンスをアタッチ
+    [SerializeField] private int trajectoryPointCount = 50;      // 軌道上の点の数
+    [SerializeField] private float trajectoryTimeStep = 0.05f;   // 軌道計算のタイムステップ (秒)
+    [SerializeField] private float maxPredictionTime = 3f;       // 最大予測時間 (秒)
 
 
     
@@ -61,6 +70,7 @@ public class WBStringController : MonoBehaviour
         
         if (parentScript != null)
         {
+            StringGpos = GameObject.Find("WB.string").transform.position;
             StringGrabGpos = GameObject.Find("Attach_string").transform.position;
             BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
             BowGrabLpos = GameObject.Find("Attach_bow").transform.localPosition;
@@ -68,8 +78,19 @@ public class WBStringController : MonoBehaviour
             float newY = Vector3.Dot(StringGrabGpos-BowGrabGpos, new Vector3(0.0f, BowGrabLpos.y, 0.0f));
             if(newY >= -0.01f)newY = -0.01f;
             if(newY <= -0.07f)newY = -0.07f;
+            // 射出力を計算 (引き距離に応じて線形補間)
+            float forceMagnitude = Mathf.Lerp(minForce, maxForce, newY / maxDrawDistance);
+            // 矢を放つ方向 
+            Vector3 shootDirection = BowGrabGpos - StringGpos;
+            shootDirection.Normalize(); // 方向ベクトルを正規化
+            // 矢の初期速度ベクトルを計算
+            Vector3 initialVelocity = shootDirection * forceMagnitude;
+
             if(isGrabbing)
             {        
+                // 軌道ガイドの更新
+                UpdateTrajectoryGuide(BowGrabGpos, initialVelocity);
+                trajectoryLineRenderer.enabled = true; // ガイドを表示
                 // ParentScriptの公開メソッドを呼び出して親の座標を変更
                 parentScript.MoveParent(new Vector3(0.0f, newY, 0.0f));
             }
@@ -81,12 +102,13 @@ public class WBStringController : MonoBehaviour
                 transform.localPosition = InitHnadGrabStringLpos;
                 parentScript.MoveParent(InitStringLpos);
                 Invoke("SpawnNewArrow", 0.5f);
-                                
+                trajectoryLineRenderer.enabled = false; // ガイドを非表示
             }
             else
             {
                 transform.localPosition = InitHnadGrabStringLpos;
                 parentScript.MoveParent(InitStringLpos);
+                trajectoryLineRenderer.enabled = false; // ガイドを非表示
             }
         }   
     }
@@ -96,7 +118,7 @@ public class WBStringController : MonoBehaviour
     {
         
         GameObject arrowPrefab = (GameObject)Resources.Load("Arrow_stick");
-        Transform arrowSpawnPoint = this.transform;
+        arrowSpawnPoint = this.transform;
         if(arrowPrefab != null && arrowSpawnPoint != null)
         {
             currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
@@ -119,9 +141,7 @@ public class WBStringController : MonoBehaviour
 
     void ShootArrow(float drawDistance)
     {
-        float minForce = 10f;
-        float maxForce = 50f;
-        float maxDrawDistance = -0.07f;
+        
         socketInteractor = GameObject.Find("Arrow_nocking_point").GetComponent<XRSocketInteractor>();
         IgnoreSocket();
         if (currentArrow == null || currentArrowRigidbody == null)
@@ -134,13 +154,10 @@ public class WBStringController : MonoBehaviour
         // 射出力を計算 (引き距離に応じて線形補間)
         float forceMagnitude = Mathf.Lerp(minForce, maxForce, drawDistance / maxDrawDistance);
 
-
         StringGpos = GameObject.Find("WB.string").transform.position;
         BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
-        // 矢を放つ方向 (弓のフォワード方向を基準に)
+        // 矢を放つ方向 
         Vector3 shootDirection = BowGrabGpos - StringGpos;
-        // わずかに上向きの力を加えることで、現実的な放物線にする
-        //shootDirection += Vector3.up * upwardForceMultiplier;
         shootDirection.Normalize(); // 方向ベクトルを正規化
 
         // 物理演算を有効化
@@ -157,6 +174,53 @@ public class WBStringController : MonoBehaviour
         // AudioManager.PlaySound("BowRelease"); // サウンドマネージャーがある場合
         
         Invoke("EnableSocket", 0.5f);
+    }
+
+    private void UpdateTrajectoryGuide(Vector3 startPosition, Vector3 initialVelocity)
+    {
+        // 軌道上の点を格納するリスト
+        List<Vector3> points = new List<Vector3>();
+        points.Add(startPosition); // 開始点を追加
+
+        Vector3 currentPosition = startPosition;
+        Vector3 currentVelocity = initialVelocity; // 現在の速度
+        float currentTime = 0f;
+
+        // 重力加速度 (UnityのPhysics.gravityを使用)
+        Vector3 gravity = Physics.gravity;
+
+        for (int i = 0; i < trajectoryPointCount; i++)
+        {
+            // 次の予測点の時間を計算
+            currentTime += trajectoryTimeStep;
+
+            // 等加速度運動の公式 (x = x0 + v0*t + 0.5*a*t^2)
+            // この式は、空気抵抗を無視したシンプルな放物線計算です。
+            Vector3 predictedPosition = startPosition + (initialVelocity * currentTime) + (0.5f * gravity * currentTime * currentTime);
+
+            points.Add(predictedPosition);
+
+            // 最大予測時間を超えたらループを終了
+            if (currentTime >= maxPredictionTime)
+            {
+                break;
+            }
+
+            // オプション: 軌道が地面に衝突したかをチェックし、衝突したらそこで軌道を打ち切る
+            // Raycastを使用するとより正確ですが、ここではパフォーマンスのため簡易的に。
+            // LayerMaskを使って、地面や壁のみを検出するようにすると良いでしょう。
+            // RaycastHit hit;
+            // if (Physics.Raycast(currentPosition, (predictedPosition - currentPosition).normalized, out hit, Vector3.Distance(currentPosition, predictedPosition), obstacleLayer))
+            // {
+            //     points.Add(hit.point);
+            //     break;
+            // }
+            currentPosition = predictedPosition;
+        }
+
+        // Line Rendererに点を設定
+        trajectoryLineRenderer.positionCount = points.Count;
+        trajectoryLineRenderer.SetPositions(points.ToArray());
     }
 
     void IgnoreCollider()
