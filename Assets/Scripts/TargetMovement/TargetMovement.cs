@@ -260,7 +260,9 @@ public class TargetMovement : MonoBehaviour
         // circleCenter を基準に、ターゲットのローカルXY平面ではなくワールドXZ平面などで円運動させる場合
         // transform.position = circleCenter + new Vector3(x, 0, y);
         // 現在はスポーン時のターゲットの向きを基準とした円運動
-        Vector3 offset = initialWorldMovementDirection.right * x + initialWorldMovementDirection.up * y;
+        Vector3 right = Quaternion.LookRotation(initialWorldMovementDirection, Vector3.up) * Vector3.right;
+        Vector3 up = Quaternion.LookRotation(initialWorldMovementDirection, Vector3.up) * Vector3.up;
+        Vector3 offset = right * x + up * y;
         transform.position = circleCenter + offset;
     }
 
