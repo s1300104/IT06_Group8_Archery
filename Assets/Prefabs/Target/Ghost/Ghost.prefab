@@ -107,7 +107,8 @@ MonoBehaviour:
     type: 3}
   spawnSound: {fileID: 0}
   naturalDespawnSound: {fileID: 0}
-  playerActionDespawnSound: {fileID: 0}
+  playerActionDespawnSound: {fileID: 8300000, guid: 6cda39a49cd3ba248ab9d3ae96235c72,
+    type: 3}
 --- !u!114 &2387662465013101719
 MonoBehaviour:
   m_ObjectHideFlags: 0

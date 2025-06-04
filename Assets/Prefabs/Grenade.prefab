@@ -128,8 +128,8 @@ MonoBehaviour:
   proximityTrigger: {fileID: 5090557661168256459}
   explosionEffectPrefab: {fileID: 5033180708955247871, guid: 152689d6752175f4fa353ae19681fb33,
     type: 3}
-  pinPullSound: {fileID: 0}
-  explosionSound: {fileID: 0}
+  pinPullSound: {fileID: 8300000, guid: 4724d503bc41f024fb7a80f98e0396c2, type: 3}
+  explosionSound: {fileID: 8300000, guid: 299c26e6bedfd4c40bd62a1593fc5519, type: 3}
   despawnTimeWhenDropped: 3
   dislodgementDistanceThresholdSqr: 0.01
 --- !u!114 &8464985397612811687

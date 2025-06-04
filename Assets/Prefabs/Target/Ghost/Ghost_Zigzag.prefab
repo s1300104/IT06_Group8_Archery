@@ -129,7 +129,8 @@ MonoBehaviour:
     type: 3}
   bonusSpawnSound: {fileID: 0}
   bonusNaturalDespawnSound: {fileID: 0}
-  bonusPlayerActionDespawnSound: {fileID: 0}
+  bonusPlayerActionDespawnSound: {fileID: 8300000, guid: e62e8efcbfea6444289f90810ada6c97,
+    type: 3}
 --- !u!114 &-5010030297947311008
 MonoBehaviour:
   m_ObjectHideFlags: 0
