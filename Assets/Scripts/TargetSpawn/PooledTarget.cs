@@ -117,13 +117,13 @@ public class PooledTarget : MonoBehaviour, IPoolable
                 case DespawnReason.Natural:
                     effectToDespawn = naturalDespawnEffectPrefab;
                     soundToPlay = naturalDespawnSound;
-                    soundVolume = 0.4f; // 自然消滅は少し音量を下げるなど
+                    // soundVolume = 0.4f; // 自然消滅は少し音量を下げるなど
                     Debug.Log($"Target {gameObject.name} despawning naturally.");
                     break;
                 case DespawnReason.PlayerAction:
                     effectToDespawn = playerActionDespawnEffectPrefab;
                     soundToPlay = playerActionDespawnSound;
-                    soundVolume = 0.6f; // プレイヤーアクションは少し音量を上げるなど
+                    // soundVolume = 0.6f; // プレイヤーアクションは少し音量を上げるなど
                     Debug.Log($"Target {gameObject.name} destroyed by player action.");
                     break;
                 case DespawnReason.OutOfBounds:
@@ -155,7 +155,14 @@ public class PooledTarget : MonoBehaviour, IPoolable
     private IEnumerator LifeTimer()
     {
         yield return new WaitForSeconds(lifeTime);
-        // 寿命到達でプール返却
-        TargetPoolManager.Instance.ReturnTarget(this);
+        if (TargetPoolManager.Instance != null)
+        {
+            // 寿命によるデスポーンなので、Naturalを指定
+            TargetPoolManager.Instance.ReturnTarget(this, DespawnReason.Natural); // ★修正: 理由を指定
+        }
+        else if (gameObject.activeSelf)
+        {
+            gameObject.SetActive(false); // フォールバック
+        }
     }
 }
