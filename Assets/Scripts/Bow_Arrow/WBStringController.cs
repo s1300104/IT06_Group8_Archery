@@ -12,6 +12,7 @@ public class WBStringController : MonoBehaviour
     Vector3 BowGrabGpos;        // 弓の持ち手のグローバル位置を格納
     Vector3 BowGrabLpos;        // 弓の持ち手のローカル位置を格納
     Transform arrowSpawnPoint;
+    Vector3 shootDirection;
     float minForce = 10f;       // 矢の最低速度
     float maxForce = 50f;       // 矢の最高速度
     float maxDrawDistance = -0.07f;// 弦の最長の引き
@@ -35,7 +36,11 @@ public class WBStringController : MonoBehaviour
     [SerializeField] private int trajectoryPointCount = 50;      // 軌道上の点の数
     [SerializeField] private float trajectoryTimeStep = 0.05f;   // 軌道計算のタイムステップ (秒)
     [SerializeField] private float maxPredictionTime = 3f;       // 最大予測時間 (秒)
-
+    [Header("サウンド設定")]
+    [SerializeField] private AudioSource bowAudioSource; // 弓にアタッチするAudioSource
+    [SerializeField] private AudioClip bowDrawSound;     // 弓を引く音
+    [SerializeField] private AudioClip arrowNockSound;   // 矢を番える音
+    [SerializeField] private AudioClip bowReleaseSound;  // 矢を放つ音
 
     
     // Start is called before the first frame update
@@ -54,7 +59,6 @@ public class WBStringController : MonoBehaviour
             Debug.LogWarning("親オブジェクトにParentScriptが見つかりませんでした。");
         }
         SpawnNewArrow();
-        //IgnoreCollider();
 
     }
 
@@ -96,13 +100,15 @@ public class WBStringController : MonoBehaviour
             // 射出力を計算 (引き距離に応じて線形補間)
             float forceMagnitude = Mathf.Lerp(minForce, maxForce, newY / maxDrawDistance);
             // 矢を放つ方向 
-            Vector3 shootDirection = BowGrabGpos - StringGpos;
+            shootDirection = BowGrabGpos - StringGpos;
             shootDirection.Normalize(); // 方向ベクトルを正規化
             // 矢の初期速度ベクトルを計算
             Vector3 initialVelocity = shootDirection * forceMagnitude;
 
             if(isGrabbing)
             {        
+                // 弦を引く距離が一定以上になったら音を再生
+                if (newY <= -0.3f && !bowAudioSource.isPlaying) { bowAudioSource.PlayOneShot(bowDrawSound); }
                 // 軌道ガイドの更新
                 UpdateTrajectoryGuide(BowGrabGpos, initialVelocity);
                 trajectoryLineRenderer.enabled = true; // ガイドを表示
@@ -133,7 +139,8 @@ public class WBStringController : MonoBehaviour
     {
         
         GameObject arrowPrefab = (GameObject)Resources.Load("Arrow_stick");
-        arrowSpawnPoint = this.transform;
+        arrowSpawnPoint = GameObject.Find("Arrow_nocking_point").transform;
+        Debug.Log(arrowSpawnPoint.rotation);
         if(arrowPrefab != null && arrowSpawnPoint != null)
         {
             currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
@@ -145,6 +152,7 @@ public class WBStringController : MonoBehaviour
             {
                 currentArrowRigidbody.isKinematic = true; // 最初は物理演算を無効化
                 IgnoreCollider();
+                bowAudioSource.PlayOneShot(arrowNockSound);
             }
             else
             {
@@ -175,7 +183,7 @@ public class WBStringController : MonoBehaviour
         StringGpos = GameObject.Find("WB.string").transform.position;
         BowGrabGpos = GameObject.Find("Attach_bow").transform.position;
         // 矢を放つ方向 
-        Vector3 shootDirection = BowGrabGpos - StringGpos;
+        shootDirection = BowGrabGpos - StringGpos;
         shootDirection.Normalize(); // 方向ベクトルを正規化
 
         // 物理演算を有効化
@@ -189,8 +197,7 @@ public class WBStringController : MonoBehaviour
         currentArrowRigidbody.AddForce(shootDirection * forceMagnitude, ForceMode.VelocityChange); // VelocityChangeは即座に速度を変化させる
         
         // 矢を放った後の処理 (例: 弦の音を再生)
-        // AudioManager.PlaySound("BowRelease"); // サウンドマネージャーがある場合
-        
+        bowAudioSource.PlayOneShot(bowReleaseSound);
         Invoke("EnableSocket", 0.5f);
     }
 
