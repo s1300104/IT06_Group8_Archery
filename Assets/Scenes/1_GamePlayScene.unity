@@ -3721,6 +3721,58 @@ Transform:
   - {fileID: 1709555710}
   m_Father: {fileID: 1556613354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &863352182
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 863352183}
+  - component: {fileID: 863352184}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &863352183
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863352182}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1556613354}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &863352184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863352182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 351acc18f08cda443a79bd361172f707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floatingScoreText: {fileID: 0}
+  floatingTimerText: {fileID: 0}
+  tvScoreText: {fileID: 0}
+  tvTimerText: {fileID: 0}
+  scoreText3D: {fileID: 2085523263}
+  timerText3D: {fileID: 991885565}
+  initialScore: 0
+  initialTime: 30
 --- !u!1 &898209935
 GameObject:
   m_ObjectHideFlags: 0
@@ -4027,6 +4079,8 @@ MonoBehaviour:
   isLockX: 0
   isLockY: 0
   isLockZ: 0
+  rot: {x: 0, y: 0, z: 0, w: 0}
+  rotDif: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &927948540
 GameObject:
   m_ObjectHideFlags: 0
@@ -4318,7 +4372,7 @@ GameObject:
   - component: {fileID: 991885566}
   - component: {fileID: 991885565}
   m_Layer: 0
-  m_Name: Text (TMP) (1)
+  m_Name: TimeDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5732,6 +5786,7 @@ Transform:
   - {fileID: 1677096198}
   - {fileID: 856980755}
   - {fileID: 1390147112}
+  - {fileID: 863352183}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1616970152
@@ -6378,7 +6433,7 @@ GameObject:
   - component: {fileID: 2085523264}
   - component: {fileID: 2085523263}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: ScoreDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
