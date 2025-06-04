@@ -78,13 +78,14 @@ public class PooledTarget : MonoBehaviour, IPoolable
             targetMovement.StopAllMovementCoroutines();
         }
 
+        // デスポーン理由に応じてエフェクトとサウンドを再生
+        PlayDespawnEffects(reason);
+
         // TargetSpawner のカウントデクリメント
         var spawner = FindObjectOfType<TargetSpawner>(); // パフォーマンス向上のため、可能ならキャッシュまたは別の方法で参照を取得
         spawner?.OnTargetDespawned(this);
                                      // エフェクト停止など後片付け
 
-        // デスポーン理由に応じてエフェクトとサウンドを再生
-        PlayDespawnEffects(reason);
     }
 
     // ★追加: デスポーン理由に応じたエフェクト再生メソッド
