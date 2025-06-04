@@ -27,16 +27,23 @@ public class ObjectPool<T> where T : Component, IPoolable
 
     public T Get()
     {
-        var obj = pool.Count > 0 ? pool.Dequeue() : CreateNew();
+        var obj = pool.Count > 0 ? pool.Dequeue() : null;
+        if (obj == null) return null;
         obj.gameObject.SetActive(true);
         obj.OnSpawn();
         return obj;
     }
 
-    public void ReturnToPool(T obj)
+    // ReturnToPoolメソッドがDespawnReasonを受け取るように修正
+    public void ReturnToPool(T obj, DespawnReason reason) // ★修正: 引数にDespawnReason reason を追加
     {
-        obj.OnDespawn();
+        obj.OnDespawn(reason); // reasonを渡す
         obj.gameObject.SetActive(false);
         pool.Enqueue(obj);
+    }
+
+    public void ReturnToPool(T obj) // 引数なし版（デフォルトはNaturalなど）
+    {
+        ReturnToPool(obj, DespawnReason.Natural); // デフォルトの理由を設定
     }
 }

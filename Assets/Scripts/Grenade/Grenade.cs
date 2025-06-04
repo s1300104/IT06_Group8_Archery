@@ -405,7 +405,7 @@ public class Grenade : MonoBehaviour
             if (target != null)
             {
                 // Debug.Log("爆発によりターゲット " + hit.name + " を破壊します。");
-                TargetPoolManager.Instance.ReturnTarget(target); // ターゲットをプールに戻す
+                TargetPoolManager.Instance.ReturnTarget(target, DespawnReason.PlayerAction); // ターゲットをプールに戻す
             }
 
             // (オプション) 他のRigidbodyに爆風の力を加える
