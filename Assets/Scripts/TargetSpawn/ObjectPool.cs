@@ -27,7 +27,8 @@ public class ObjectPool<T> where T : Component, IPoolable
 
     public T Get()
     {
-        var obj = pool.Count > 0 ? pool.Dequeue() : CreateNew();
+        var obj = pool.Count > 0 ? pool.Dequeue() : null;
+        if (obj == null) return null;
         obj.gameObject.SetActive(true);
         obj.OnSpawn();
         return obj;

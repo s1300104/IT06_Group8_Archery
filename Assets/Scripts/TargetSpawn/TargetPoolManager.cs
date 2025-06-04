@@ -50,6 +50,7 @@ public class TargetPoolManager : MonoBehaviour
             return null;
         }
         var t = regularTargetPool.Get();
+        if (t == null) return null;
         t.transform.position = position;
 
         // プレイヤーの方向を向く
@@ -67,6 +68,7 @@ public class TargetPoolManager : MonoBehaviour
             return null;
         }
         var t = bonusTargetPool.Get();
+        if (t == null) return null;
         t.transform.position = position;
 
         // プレイヤーの方向を向く
