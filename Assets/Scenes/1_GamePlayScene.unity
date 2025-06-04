@@ -4176,8 +4176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55fce15b6e176e44a9ce4070da56c71f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnInterval: 0.3
-  maxRegularTargets: 30
+  spawnInterval: 0.5
+  maxRegularTargets: 20
   maxBonusTargets: 3
   bonusTargetSpawnChance: 0.1
   spawnAreaCenter: {x: -8, y: 1, z: -6}

@@ -110,7 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8f3acdb77ec24f48b347c28014620ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 999
+  lifeTime: 3
   movementPatternForBonus: 0
   overrideDefaultMovement: 1
 --- !u!1001 &1092741471585585904
