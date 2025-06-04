@@ -16,6 +16,7 @@ public class ArrowController : MonoBehaviour
 
     [Header("エフェクト設定")]
     [SerializeField] private GameObject hitEffectPrefab; // ターゲットに当たったときのエフェクトプレハブ
+    [SerializeField] private float hitEffectScale = 0.5f;
     //[SerializeField] private GameObject otherHitEffectPrefab; // その他に当たったときのエフェクトプレハブ（オプション）
 
 
@@ -59,10 +60,12 @@ public class ArrowController : MonoBehaviour
         PooledTarget target = other.GetComponent<PooledTarget>();
         if (target != null)
         {
+            // エフェクトとサウンドを再生
+            HandleEffectAndSound(other.gameObject, hitEffectPrefab, targetHitSound);
             Debug.Log("爆発によりターゲット " + other.name + " を破壊します。");
             TargetPoolManager.Instance.ReturnTarget(target); // ターゲットをプールに戻す
             DestroyArrow();
-            HandleEffectAndSound(other.gameObject, hitEffectPrefab, targetHitSound);
+            
             enabled = false;
         }
         
@@ -81,8 +84,10 @@ public class ArrowController : MonoBehaviour
         }
     }
 
-    private IEnumerator HandleEffectAndSound(GameObject targetToDestroy, GameObject effectPrefab, AudioClip soundClip)
+    private void HandleEffectAndSound(GameObject targetToDestroy, GameObject effectPrefab, AudioClip soundClip)
     {
+
+        
         // エフェクトを生成 (衝突位置に)
         GameObject effectInstance = null;
         if (effectPrefab != null)
@@ -91,20 +96,14 @@ public class ArrowController : MonoBehaviour
             // OnCollisionEnter と異なり OnTriggerEnter では contact point が直接得られないため、
             // 衝突したコライダーのClosestPointを使っておおよその衝突位置を推定する
             effectInstance = Instantiate(effectPrefab, targetToDestroy.GetComponent<Collider>().ClosestPoint(transform.position), Quaternion.identity);
-            Destroy(effectInstance, 2f); // エフェクトは2秒後に消す
+            effectInstance.transform.localScale = new Vector3(hitEffectScale, hitEffectScale, hitEffectScale); // ここでスケールを適用
+            Destroy(effectInstance, 1f); // エフェクトは1秒後に消す
         }
 
         // サウンドを再生
         if (arrowAudioSource != null && soundClip != null)
         {
             arrowAudioSource.PlayOneShot(soundClip);
-            // サウンドが再生し終わるのを待つ
-            yield return new WaitForSeconds(soundClip.length); 
-        }
-        else
-        {
-            // サウンドがない場合は少し待つか、すぐに実行
-            yield return new WaitForSeconds(0.1f); // わずかな遅延
         }
 
     }
