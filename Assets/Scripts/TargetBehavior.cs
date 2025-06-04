@@ -11,7 +11,7 @@ public class TargetBehavior : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.AddScore(scoreValue);
+            GameManager.Instance.AddScore();
         }
         else
         {

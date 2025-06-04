@@ -109,7 +109,11 @@ public class TargetPoolManager : MonoBehaviour
             Destroy(t.gameObject);
         }
 
-        if(reason == DespawnReason.PlayerAction) DefeatCount++;
+        if(reason == DespawnReason.PlayerAction) 
+        {
+            DefeatCount++;
+            Debug.Log("Count: " + DefeatCount);
+        }
     }
 
     public void ReturnTarget(PooledTarget t)
@@ -119,6 +123,7 @@ public class TargetPoolManager : MonoBehaviour
 
     public int getDefeatCount()
     {
+        Debug.Log("Return Count: " + DefeatCount);
         return DefeatCount;
     }
 }

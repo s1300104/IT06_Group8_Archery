@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
         {
             _currentTime -= Time.deltaTime;
             UpdateTimerUI();
+            AddScore();
 
             if (_currentTime <= 0)
             {
@@ -77,7 +78,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void AddScore(int amount)
+    public void AddScore()
     {
         if (_isGameActive)
         {
