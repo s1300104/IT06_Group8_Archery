@@ -3,14 +3,6 @@ using System.Collections;
 
 public class PooledTarget : MonoBehaviour, IPoolable
 {
-    public enum DespawnReason
-    {
-        Natural,        // 寿命による自然消滅
-        PlayerAction,   // プレイヤーのアクション（グレネード、武器など）による破壊
-        OutOfBounds,    // 範囲外に出たなど、その他の理由
-        ForceRemoved    // 強制的な削除やリセットなど
-    }
-
     public float lifeTime = 5f;
     private Coroutine lifeCoroutine;
 
