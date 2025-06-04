@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1092741472892007375}
   - component: {fileID: 1092741472892007372}
   - component: {fileID: 8779644828338446101}
+  - component: {fileID: 2387662465013101719}
   m_Layer: 0
   m_Name: Ghost
   m_TagString: Untagged
@@ -98,6 +99,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 5
+--- !u!114 &2387662465013101719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092741472892007369}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65f8080102e386449afef7b3af49061c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 3
+  oscillationDistance: 5
+  circleRadius: 3
+  circleSpeedMultiplier: 1
+  waveFrequency: 1
+  waveAmplitude: 1
+  chaseSpeed: 2
+  minChaseDistance: 5
+  stopDuration: 2
+  moveDuration: 3
+  waypointAreaSize: {x: 10, y: 5, z: 10}
+  timeToReachWaypoint: 3
 --- !u!1001 &1092741471585585904
 PrefabInstance:
   m_ObjectHideFlags: 0

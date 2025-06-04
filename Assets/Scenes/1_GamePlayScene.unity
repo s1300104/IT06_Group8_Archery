@@ -1198,7 +1198,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &355688879
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4321,7 +4321,7 @@ PrefabInstance:
     - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5810,6 +5810,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5328611366dc2f048aa6aa1880b0f2a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &2027659141
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7078033664584610116, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_Name
+      value: Wooden Bow
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.375
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.31981
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -180
+      objectReference: {fileID: 0}
+    - target: {fileID: 7078033664584838436, guid: 68303d003c6bcfe409461162e645159a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 68303d003c6bcfe409461162e645159a, type: 3}
 --- !u!1 &2100773857
 GameObject:
   m_ObjectHideFlags: 0
@@ -5944,3 +6012,4 @@ SceneRoots:
   - {fileID: 1346120821}
   - {fileID: 1224063685}
   - {fileID: 1556613354}
+  - {fileID: 2027659141}

@@ -14,6 +14,9 @@ public class TargetPoolManager : MonoBehaviour
     public int initialBonusPoolSize = 5;  // ボーナスターゲットの初期プールサイズ
     private ObjectPool<BonusTarget> bonusTargetPool;
 
+    [Header("Player Reference")]
+    public Transform playerTransform; // プレイヤーのTransformを設定
+
     void Awake()
     {
         if (Instance == null) { Instance = this; }
@@ -48,10 +51,14 @@ public class TargetPoolManager : MonoBehaviour
         }
         var t = regularTargetPool.Get();
         t.transform.position = position;
-        // OnSpawnはGet()内部で呼ばれる
+
+        // プレイヤーの方向を向く
+        LookAtPlayer(t.transform);
+
         return t;
     }
 
+    // ボーナスターゲットの生成
     public BonusTarget SpawnBonusTarget(Vector3 position)
     {
         if (bonusTargetPool == null)
@@ -61,14 +68,26 @@ public class TargetPoolManager : MonoBehaviour
         }
         var t = bonusTargetPool.Get();
         t.transform.position = position;
-        // OnSpawnはGet()内部で呼ばれる (BonusTargetのオーバーライドされたOnSpawnが呼ばれる)
+
+        // プレイヤーの方向を向く
+        LookAtPlayer(t.transform);
+
         return t;
     }
 
-    // ターゲットの返却 
-    // (PooledTargetとBonusTargetの両方を受け取れるようにジェネリック化またはオーバーロードも検討可能だが、
-    // PooledTargetが基底クラスなので、このメソッドでBonusTargetも扱える)
-    public void ReturnTarget(PooledTarget t) // BonusTargetもPooledTargetなのでこのメソッドでOK
+    // ターゲットがプレイヤーの方向を向く処理
+    private void LookAtPlayer(Transform targetTransform)
+    {
+        if (playerTransform != null)
+        {
+            Vector3 lookAtPosition = playerTransform.position;
+            lookAtPosition.y = targetTransform.position.y; // ターゲットのY座標を固定してLookAt
+            targetTransform.LookAt(lookAtPosition);
+        }
+    }
+
+    // ターゲットの返却
+    public void ReturnTarget(PooledTarget t)
     {
         if (t == null) return;
 
@@ -76,13 +95,12 @@ public class TargetPoolManager : MonoBehaviour
         {
             bonusTargetPool.ReturnToPool(bonusTarget);
         }
-        else if (regularTargetPool != null) // BonusTargetでなかった場合、またはbonusTargetPoolが何らかの理由でnullの場合
+        else if (regularTargetPool != null)
         {
             regularTargetPool.ReturnToPool(t);
         }
         else
         {
-            // どちらのプールにも返せない場合 (エラーまたは直接破棄)
             Debug.LogWarning($"Target {t.gameObject.name} could not be returned to any pool. Destroying directly.");
             Destroy(t.gameObject);
         }
