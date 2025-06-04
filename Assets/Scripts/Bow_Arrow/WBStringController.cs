@@ -16,6 +16,7 @@ public class WBStringController : MonoBehaviour
     float minForce = 10f;       // 矢の最低速度
     float maxForce = 50f;       // 矢の最高速度
     float maxDrawDistance = -0.07f;// 弦の最長の引き
+    bool StringPulled = false;
     private XRSocketInteractor socketInteractor;
     private XRGrabInteractable stringGrabInteractable;
     private XRGrabInteractable bowGrabInteractable;
@@ -65,7 +66,7 @@ public class WBStringController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-            
+        
         if(bowGrabInteractable.isSelected)
         {
             currentArrowCollider.size = new Vector3(ArrowColliderSize.x, ArrowColliderSize.y / 2.0f, ArrowColliderSize.z);
@@ -108,7 +109,8 @@ public class WBStringController : MonoBehaviour
             if(isGrabbing)
             {        
                 // 弦を引く距離が一定以上になったら音を再生
-                if (newY <= -0.3f && !bowAudioSource.isPlaying) { bowAudioSource.PlayOneShot(bowDrawSound); }
+                if (newY <= -0.03f && StringPulled) { bowAudioSource.PlayOneShot(bowDrawSound); Debug.Log("pull arrow sound");}
+                StringPulled = false;
                 // 軌道ガイドの更新
                 UpdateTrajectoryGuide(BowGrabGpos, initialVelocity);
                 trajectoryLineRenderer.enabled = true; // ガイドを表示
@@ -127,6 +129,7 @@ public class WBStringController : MonoBehaviour
             }
             else
             {
+                StringPulled = true;
                 transform.localPosition = InitHnadGrabStringLpos;
                 parentScript.MoveParent(InitStringLpos);
                 trajectoryLineRenderer.enabled = false; // ガイドを非表示
