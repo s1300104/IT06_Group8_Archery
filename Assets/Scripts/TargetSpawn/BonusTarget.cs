@@ -36,7 +36,8 @@ public class BonusTarget : PooledTarget // PooledTargetを継承
         // ボーナス専用スポーンエフェクト (もしあれば)
         if (bonusSpawnEffectPrefab != null)
         {
-            Instantiate(bonusSpawnEffectPrefab, transform.position, Quaternion.identity);
+            GameObject effect = Instantiate(bonusSpawnEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(effect, 1f);
         }
         if (bonusSpawnSound != null)
         {

@@ -112,8 +112,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 3
+  spawnEffectPrefab: {fileID: 4250298743439401460, guid: 184c47b8b8e4c814d8241a901f177515,
+    type: 3}
+  naturalDespawnEffectPrefab: {fileID: 0}
+  playerActionDespawnEffectPrefab: {fileID: 8367907410985086596, guid: 0b493b97a8e419d46903c1b023460740,
+    type: 3}
+  spawnSound: {fileID: 0}
+  naturalDespawnSound: {fileID: 0}
+  playerActionDespawnSound: {fileID: 0}
   movementPatternForBonus: 0
   overrideDefaultMovement: 1
+  bonusSpawnEffectPrefab: {fileID: 4250298743439401460, guid: 184c47b8b8e4c814d8241a901f177515,
+    type: 3}
+  bonusNaturalDespawnEffectPrefab: {fileID: 0}
+  bonusPlayerActionDespawnEffectPrefab: {fileID: 8367907410985086596, guid: 0b493b97a8e419d46903c1b023460740,
+    type: 3}
+  bonusSpawnSound: {fileID: 0}
+  bonusNaturalDespawnSound: {fileID: 0}
+  bonusPlayerActionDespawnSound: {fileID: 0}
 --- !u!114 &-5010030297947311008
 MonoBehaviour:
   m_ObjectHideFlags: 0

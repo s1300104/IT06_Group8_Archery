@@ -100,6 +100,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 10
+  spawnEffectPrefab: {fileID: 575319445162951685, guid: b7e5061752aa1fa48b86d205d34abf7f,
+    type: 3}
+  naturalDespawnEffectPrefab: {fileID: 0}
+  playerActionDespawnEffectPrefab: {fileID: 8367907410985086596, guid: 0b493b97a8e419d46903c1b023460740,
+    type: 3}
+  spawnSound: {fileID: 0}
+  naturalDespawnSound: {fileID: 0}
+  playerActionDespawnSound: {fileID: 0}
 --- !u!114 &2387662465013101719
 MonoBehaviour:
   m_ObjectHideFlags: 0

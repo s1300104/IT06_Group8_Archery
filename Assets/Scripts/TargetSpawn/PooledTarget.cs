@@ -55,7 +55,8 @@ public class PooledTarget : MonoBehaviour, IPoolable
         // エフェクト生成
         if (spawnEffectPrefab != null && this.GetType() == typeof(PooledTarget))
         {
-            Instantiate(spawnEffectPrefab, transform.position, Quaternion.identity);
+            GameObject effect = Instantiate(spawnEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(effect, 1f);
         }
 
         // 効果音生成
