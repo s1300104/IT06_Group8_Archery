@@ -23,6 +23,15 @@ public class TargetMovement : MonoBehaviour
     public float speed = 3.0f;
     // public float lifetime = 10.0f; // PooledTargetが管理するので削除
 
+    [Header("Look At Player Settings")]
+    [Tooltip("ターゲットが常にプレイヤーの方を向くようにするかどうか")]
+    public bool alwaysFacePlayer = true; // インスペクターでこの機能をON/OFFできるようにする
+    [Tooltip("プレイヤーの方を向く際の回転速度（0の場合は即時回転）")]
+    public float facePlayerRotationSpeed = 5.0f;
+    private Transform playerToFace; // プレイヤーのTransformへの参照
+
+    private Vector3 initialWorldMovementDirection;
+
     [Header("Oscillation Settings (Horizontal/Vertical)")]
     public float oscillationDistance = 5.0f;
     private Vector3 initialLocalPosition; // ローカル座標基準に変更
@@ -70,11 +79,30 @@ public class TargetMovement : MonoBehaviour
         // 既存の移動関連コルーチンを停止
         StopAllMovementCoroutines();
 
+        // プレイヤー参照の取得を共通化
+        if (alwaysFacePlayer || pattern == MovementPattern.SlowChasePlayer) // プレイヤーを向く機能がON、または追跡タイプの場合
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                playerToFace = playerObj.transform;
+            }
+            else
+            {
+                Debug.LogWarning("TargetMovement: Player object with tag 'Player' not found. 'Always Face Player' and 'SlowChasePlayer' might not work correctly.");
+                if (pattern == MovementPattern.SlowChasePlayer) // SlowChasePlayerでPlayerが見つからない場合はフォールバック
+                {
+                     this.currentPattern = MovementPattern.Straight; // Straightにフォールバック [cite: 124, 519, 783, 856]
+                }
+            }
+        }
+
         // パターンごとの初期設定
         switch (currentPattern)
         {
             case MovementPattern.Straight:
-                transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0); // ランダムな向きに
+                transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0); 
+                initialWorldMovementDirection = transform.forward; // ★初期のワールド前方方向を保存
                 break;
             case MovementPattern.HorizontalOscillation:
             case MovementPattern.VerticalOscillation:
@@ -85,12 +113,15 @@ public class TargetMovement : MonoBehaviour
                 // ここではスポーン位置の左側を中心とする例
                 circleCenter = spawnPosition - transform.right * circleRadius;
                 currentAngle = Mathf.Atan2((spawnPosition - circleCenter).y, (spawnPosition - circleCenter).x);
+                initialWorldMovementDirection = transform.forward; // ★初期のワールド前方方向を保存
                 break;
             case MovementPattern.SineWaveHorizontal:
             case MovementPattern.SineWaveVertical:
                 var dir = Random.insideUnitCircle.normalized;
-                baseDirection = new Vector3(dir.x, pattern == MovementPattern.SineWaveVertical ? dir.y : 0, pattern == MovementPattern.SineWaveHorizontal ? dir.y : 0);
-                transform.rotation = Quaternion.LookRotation(baseDirection, Vector3.up);
+                Vector3 calculatedBaseDirection = new Vector3(dir.x, pattern == MovementPattern.SineWaveVertical ? dir.y : 0, pattern == MovementPattern.SineWaveHorizontal ? dir.y : 0).normalized; // 正規化
+                if (calculatedBaseDirection == Vector3.zero) calculatedBaseDirection = Vector3.forward; // ゼロベクトル対策
+                initialWorldMovementDirection = calculatedBaseDirection; // ★初期のワールド移動方向を保存
+                transform.rotation = Quaternion.LookRotation(initialWorldMovementDirection, Vector3.up); 
                 break;
             case MovementPattern.SlowChasePlayer:
                 GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -134,6 +165,37 @@ public class TargetMovement : MonoBehaviour
     {
         timeAccumulator += Time.deltaTime;
 
+        if (alwaysFacePlayer && playerToFace != null)
+        {
+            // 特定のパターンでは独自の向き制御を優先、または向きを変えない
+            bool applyFacingLogic = true;
+            switch (currentPattern)
+            {
+                case MovementPattern.SlowChasePlayer: // 独自のLookAtを持つ
+                // case MovementPattern.Circular:     // 独自の向き制御があり得る
+                // case MovementPattern.HorizontalOscillation: // 向き固定のことが多い
+                // case MovementPattern.VerticalOscillation:   // 向き固定のことが多い
+                    applyFacingLogic = false;
+                    break;
+                default:
+                    break;
+            }
+
+            if (applyFacingLogic)
+            {
+                Vector3 directionToPlayer = playerToFace.position - transform.position;
+                directionToPlayer.y = 0;
+                if (directionToPlayer != Vector3.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+                    if (facePlayerRotationSpeed > 0)
+                        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, facePlayerRotationSpeed * Time.deltaTime);
+                    else
+                        transform.rotation = targetRotation;
+                }
+            }
+        }
+
         switch (currentPattern)
         {
             case MovementPattern.Straight:
@@ -160,19 +222,21 @@ public class TargetMovement : MonoBehaviour
             case MovementPattern.StopAndGo:
                 if (isMovingForStopAndGo)
                 {
+                    // StopAndGoの場合、移動方向はStopAndGoRoutineInternalで設定された向きを維持
+                    // alwaysFacePlayerがONでも、移動方向自体は変わらない
                     transform.Translate(transform.forward * speed * Time.deltaTime, Space.World);
                 }
                 break;
             case MovementPattern.RandomWaypoint:
-                // コルーチンで処理
+                // コルーチンで処理 向きはWaypointへの方向
                 break;
         }
     }
-
-    // --- 各移動パターンの実装 (前回とほぼ同様、一部修正) ---
+    
     void MoveStraight()
     {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        // ★保存された初期ワールド移動方向に沿って移動
+        transform.Translate(initialWorldMovementDirection * speed * Time.deltaTime, Space.World);
     }
 
     void MoveHorizontalOscillation()
@@ -196,27 +260,44 @@ public class TargetMovement : MonoBehaviour
         // circleCenter を基準に、ターゲットのローカルXY平面ではなくワールドXZ平面などで円運動させる場合
         // transform.position = circleCenter + new Vector3(x, 0, y);
         // 現在はスポーン時のターゲットの向きを基準とした円運動
-        Vector3 offset = transform.right * x + transform.up * y;
+        Vector3 right = Quaternion.LookRotation(initialWorldMovementDirection, Vector3.up) * Vector3.right;
+        Vector3 up = Quaternion.LookRotation(initialWorldMovementDirection, Vector3.up) * Vector3.up;
+        Vector3 offset = right * x + up * y;
         transform.position = circleCenter + offset;
     }
 
     void MoveSineWaveHorizontal()
     {
-        transform.Translate(baseDirection * speed * Time.deltaTime, Space.World);
-        float sineOffset = Mathf.Sin(timeAccumulator * waveFrequency) * waveAmplitude;
-        /* // Y軸周りの回転から右方向を取得して揺らす
-        Vector3 horizontalWiggleDirection = Quaternion.AngleAxis(90, transform.up) * baseDirection; */
-        transform.position += transform.right * sineOffset * Time.deltaTime;
+        // ★保存された初期ワールド移動方向に沿って線形移動
+        transform.Translate(initialWorldMovementDirection * speed * Time.deltaTime, Space.World);
 
+        float sineOffset = Mathf.Sin(timeAccumulator * waveFrequency) * waveAmplitude; // [cite: 149, 284, 548, 621]
+
+        // 揺れは initialWorldMovementDirection に対して水平垂直な軸で行う
+        Vector3 horizontalPerpendicular = Vector3.Cross(initialWorldMovementDirection, Vector3.up).normalized;
+        if (horizontalPerpendicular == Vector3.zero) // initialWorldMovementDirection がY軸に平行な場合
+        {
+            horizontalPerpendicular = transform.right; // フォールバックとして現在の右方向（プレイヤー基軸）
+        }
+        transform.position += horizontalPerpendicular * sineOffset * Time.deltaTime;
     }
 
     void MoveSineWaveVertical()
     {
-        transform.Translate(baseDirection * speed * Time.deltaTime, Space.World);
-        float sineOffset = Mathf.Sin(timeAccumulator * waveFrequency) * waveAmplitude;
-        /* // X軸周りの回転から上方向を取得して揺らす
-        Vector3 verticalWiggleDirection = Quaternion.AngleAxis(90, transform.right) * baseDirection; */
-        transform.position += transform.up * sineOffset * Time.deltaTime;
+        // ★保存された初期ワールド移動方向に沿って線形移動
+        transform.Translate(initialWorldMovementDirection * speed * Time.deltaTime, Space.World);
+
+        float sineOffset = Mathf.Sin(timeAccumulator * waveFrequency) * waveAmplitude; // [cite: 152, 287, 551, 624]
+
+        // 揺れは initialWorldMovementDirection に対して垂直な面での「上」方向
+        // (initialWorldMovementDirectionが水平に近い場合、これはほぼワールドのY軸になる)
+        // より厳密な「パスに対する垂直上」を求めるなら:
+        Vector3 sideAxis = Vector3.Cross(initialWorldMovementDirection, Vector3.up).normalized;
+        if (sideAxis == Vector3.zero) sideAxis = Vector3.right; // フォールバック
+        Vector3 verticalPerpendicular = Vector3.Cross(initialWorldMovementDirection, sideAxis).normalized; // initialWorldMovementDirectionのXY平面での回転軸から求める
+         if (verticalPerpendicular == Vector3.zero || float.IsNaN(verticalPerpendicular.x)) verticalPerpendicular = Vector3.up; // 万が一のフォールバック
+
+        transform.position += verticalPerpendicular * sineOffset * Time.deltaTime;
     }
 
     void MoveSlowChasePlayer()
