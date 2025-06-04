@@ -9,6 +9,15 @@ public class ArrowController : MonoBehaviour
     [Header("寿命 (一定時間後に矢を消滅させる)")]
     [SerializeField] private float lifetime = 10f; // 10秒後に消滅
     //public SphereCollider proximityTrigger;
+    [Header("サウンド設定")]
+    [SerializeField] private AudioSource arrowAudioSource;
+    [SerializeField] private AudioClip targetHitSound;     // ターゲットに当たる音
+    //[SerializeField] private AudioClip otherHitSound;      // その他に当たる音
+
+    [Header("エフェクト設定")]
+    [SerializeField] private GameObject hitEffectPrefab; // ターゲットに当たったときのエフェクトプレハブ
+    //[SerializeField] private GameObject otherHitEffectPrefab; // その他に当たったときのエフェクトプレハブ（オプション）
+
 
     private void Awake()
     {
@@ -53,6 +62,7 @@ public class ArrowController : MonoBehaviour
             Debug.Log("爆発によりターゲット " + other.name + " を破壊します。");
             TargetPoolManager.Instance.ReturnTarget(target); // ターゲットをプールに戻す
             DestroyArrow();
+            HandleEffectAndSound(other.gameObject, hitEffectPrefab, targetHitSound);
             enabled = false;
         }
         
@@ -69,34 +79,34 @@ public class ArrowController : MonoBehaviour
             // 衝突したらこのスクリプトのUpdate関数を停止し、再度のトリガー検出を防ぐ
             enabled = false;
         }
-        /*
-        else if (other.gameObject.CompareTag("Target")) // 前回の例の「Target」タグなど
+    }
+
+    private IEnumerator HandleEffectAndSound(GameObject targetToDestroy, GameObject effectPrefab, AudioClip soundClip)
+    {
+        // エフェクトを生成 (衝突位置に)
+        GameObject effectInstance = null;
+        if (effectPrefab != null)
         {
-            // ここにターゲットに刺さるロジックを続ける
-            Debug.Log("矢がターゲットに当たった！");
+            // other.transform.position ではなく、実際に衝突した位置を使うとより自然
+            // OnCollisionEnter と異なり OnTriggerEnter では contact point が直接得られないため、
+            // 衝突したコライダーのClosestPointを使っておおよその衝突位置を推定する
+            effectInstance = Instantiate(effectPrefab, targetToDestroy.GetComponent<Collider>().ClosestPoint(transform.position), Quaternion.identity);
+            Destroy(effectInstance, 2f); // エフェクトは2秒後に消す
+        }
 
-            // 物理演算を無効化し、ターゲットの子オブジェクトにする
-            rb.isKinematic = true;
-            transform.SetParent(other.transform); // OnTriggerEnterではCollisionではなくColliderが渡されるため、other.transformを使用
-
-            // 衝突したらスクリプトを無効化 (Updateでの向き調整を停止)
-            enabled = false; // これにより、Update関数が呼ばれなくなる
-
-            // 必要であれば、一定時間後に矢を消す
-            Invoke("DestroyArrow", 5f); // 5秒後にターゲットに刺さった矢を消す
+        // サウンドを再生
+        if (arrowAudioSource != null && soundClip != null)
+        {
+            arrowAudioSource.PlayOneShot(soundClip);
+            // サウンドが再生し終わるのを待つ
+            yield return new WaitForSeconds(soundClip.length); 
         }
         else
         {
-            // その他のオブジェクトに当たった場合（地面、壁など）
-            Debug.Log("矢がターゲット以外のものに当たった: " + other.gameObject.name);
-
-            // 物理演算を停止し、その場に留まらせる（刺さるように見せる）
-            rb.isKinematic = true;
-            // 矢の寿命を短くするなど
-            Invoke("DestroyArrow", 2f); // 2秒後に消す
-            enabled = false; // Update停止
+            // サウンドがない場合は少し待つか、すぐに実行
+            yield return new WaitForSeconds(0.1f); // わずかな遅延
         }
-        */
+
     }
 
     private void DestroyArrow()

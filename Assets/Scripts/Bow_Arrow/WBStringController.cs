@@ -147,7 +147,6 @@ public class WBStringController : MonoBehaviour
         
         GameObject arrowPrefab = (GameObject)Resources.Load("Arrow_stick");
         arrowSpawnPoint = GameObject.Find("Arrow_nocking_point").transform;
-        Debug.Log(arrowSpawnPoint.rotation);
         if(arrowPrefab != null && arrowSpawnPoint != null)
         {
             currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
