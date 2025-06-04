@@ -1906,7 +1906,7 @@ MonoBehaviour:
   - {fileID: 863928981}
   - {fileID: 1823723144}
   - {fileID: 1630841991}
-  generationInterval: 5
+  generationInterval: 3
 --- !u!4 &317801769
 Transform:
   m_ObjectHideFlags: 0

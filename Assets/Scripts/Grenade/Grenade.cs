@@ -29,10 +29,13 @@ public class Grenade : MonoBehaviour
     [Header("Socket & Despawn Settings")]
     [Tooltip("手から離れた後、自動消滅するまでの時間（秒）")]
     public float despawnTimeWhenDropped = 15.0f;
+    [Tooltip("ソケットから物理的に離れたとみなす距離の閾値(の2乗)")]
+    public float dislodgementDistanceThresholdSqr = 0.01f; // 例: 10cm四方
 
     private GrenadeSocket originalSocket;
-    private bool wasPickedFromSocket = false;
+    private bool wasPickedFromSocket = false; // ソケットから一度でも持ち上げられた/離脱したか
     private Coroutine timedDespawnCoroutine = null;
+    private Coroutine dislodgementCheckCoroutine = null; // ★追加: 物理的離脱検知用コルーチン
 
     private XRGrabInteractable grabInteractable; // XRGrabInteractableへの参照
     private Rigidbody rb; // Rigidbodyへの参照
@@ -98,7 +101,7 @@ public class Grenade : MonoBehaviour
     public void InitializeInSocket(GrenadeSocket socket)
     {
         originalSocket = socket;
-        wasPickedFromSocket = false;
+        wasPickedFromSocket = false; // まだソケットから持ち上げられていない/離脱していない
 
         /* if (rb != null)
         {
@@ -109,18 +112,76 @@ public class Grenade : MonoBehaviour
         } */
 
         if (proximityTrigger != null) proximityTrigger.enabled = false; // ソケット内では近接検知無効
+
+        // ★物理的離脱を監視するコルーチンを開始
+        if (dislodgementCheckCoroutine != null) StopCoroutine(dislodgementCheckCoroutine);
+        dislodgementCheckCoroutine = StartCoroutine(CheckIfDislodgedRoutine());
+    }
+
+    // ★ソケットからの物理的離脱を監視するコルーチン
+    private IEnumerator CheckIfDislodgedRoutine()
+    {
+        if (originalSocket == null || originalSocket.spawnPoint == null)
+        {
+            // Debug.LogWarning("Dislodgement check cannot start: originalSocket or spawnPoint is null.");
+            dislodgementCheckCoroutine = null;
+            yield break;
+        }
+
+        Vector3 initialSocketPosition = originalSocket.spawnPoint.position;
+
+        while (originalSocket != null && !wasPickedFromSocket && !isExploded && !grabInteractable.isSelected)
+        {
+            // isSelected のチェックを追加: プレイヤーが持っている間はこのコルーチンでの離脱判定は不要
+            if ((transform.position - initialSocketPosition).sqrMagnitude > dislodgementDistanceThresholdSqr)
+            {
+                Debug.Log($"Grenade {gameObject.name} dislodged from socket {originalSocket.gameObject.name} by external force.");
+                ProcessSocketDeparture(); // ソケット離脱処理を共通化
+
+                // 物理的に離脱した場合、物理演算を有効にする
+                if (rb != null)
+                {
+                    rb.isKinematic = false;
+                    rb.useGravity = true;
+                }
+
+                // 手に持たれていないので、ドロップ後の消滅タイマーを開始
+                if (timedDespawnCoroutine != null) StopCoroutine(timedDespawnCoroutine);
+                timedDespawnCoroutine = StartCoroutine(DespawnAfterDelayRoutine());
+                Debug.Log("Grenade dislodged from socket, starting despawn timer.");
+
+                dislodgementCheckCoroutine = null; // コルーチン終了
+                yield break;
+            }
+            yield return new WaitForSeconds(0.25f); // チェック間隔
+        }
+        dislodgementCheckCoroutine = null; // 通常終了
+    }
+
+    // ★ソケット離脱処理を共通化するメソッド
+    private void ProcessSocketDeparture()
+    {
+        if (originalSocket != null)
+        {
+            originalSocket.OnGrenadeTaken();
+            wasPickedFromSocket = true; // これがtrueになることで、ドロップ後の消滅対象になる
+            originalSocket = null; // ソケットとの関連を切る
+            Debug.Log($"Grenade {gameObject.name} processed departure from socket.");
+        }
+
+        // 物理的離脱監視コルーチンは不要になるので停止
+        if (dislodgementCheckCoroutine != null)
+        {
+            StopCoroutine(dislodgementCheckCoroutine);
+            dislodgementCheckCoroutine = null;
+        }
     }
 
     private void HandleSelectEntered(SelectEnterEventArgs args)
     {
-        if (originalSocket != null && !wasPickedFromSocket)
+        if (!wasPickedFromSocket && originalSocket != null) // まだソケットから離脱処理がされていない場合
         {
-            originalSocket.OnGrenadeTaken();
-            wasPickedFromSocket = true;
-            Debug.Log("Grenade taken from socket for the first time.");
-            originalSocket = null; // ピンが抜かれるまではソケットとの関連を保持しても良いが、
-                                  // 一度持たれたら戻らない仕様なので、ここで切っても良い。
-                                  // OnPinPulledで最終的に切ることを推奨。
+            ProcessSocketDeparture(); // プレイヤーによるピックアップもソケット離脱として処理
         }
 
         // もしピン離脱後のKinematic変更遅延コルーチンが動いていたら停止
@@ -199,7 +260,7 @@ public class Grenade : MonoBehaviour
                 // ピンが持たれたら、グレネード本体をKinematicにして安定させる
                 rb.isKinematic = true;
                 // rb.useGravity = false; // isKinematic=trueなら重力は効かないが、念のため
-                Debug.Log("Pin is being held, Grenade body set to Kinematic.");
+                // Debug.Log("Pin is being held, Grenade body set to Kinematic.");
             }
             else
             {
@@ -208,7 +269,7 @@ public class Grenade : MonoBehaviour
                 {
                     delayedKinematicChangeCoroutine = StartCoroutine(MakeNonKinematicAfterDelayRoutine());
                 }
-                Debug.Log("Pin released (but not pulled), Grenade body physics potentially restored by XRI (should be non-kinematic).");
+                // Debug.Log("Pin released (but not pulled), Grenade body physics potentially restored by XRI (should be non-kinematic).");
             }
         }
     }
@@ -277,10 +338,13 @@ public class Grenade : MonoBehaviour
             proximityTrigger.enabled = true;
         }
 
-        // ピンが抜かれたら、ソケットとの関連は完全に断つ
-        if (wasPickedFromSocket && originalSocket != null)
+        // ピンが抜かれた時点で、ソケットとの関連は明確に切る
+        // ProcessSocketDepartureはwasPickedFromSocketもtrueにするので、
+        // wasPickedFromSocketがfalseのままでもソケットを解放できるように、
+        // originalSocketがnullでないなら直接呼び出す。
+        if (originalSocket != null) 
         {
-            originalSocket = null;
+            ProcessSocketDeparture(); // これによりoriginalSocket = nullになり、wasPickedFromSocket = trueになる
         }
     }
 
@@ -293,7 +357,7 @@ public class Grenade : MonoBehaviour
         PooledTarget target = other.GetComponent<PooledTarget>();
         if (target != null)
         {
-            Debug.Log("ターゲット (" + other.name + ") がグレネードの近接範囲に入りました。爆発します。");
+            // Debug.Log("ターゲット (" + other.name + ") がグレネードの近接範囲に入りました。爆発します。");
             Explode();
         }
     }
@@ -310,6 +374,13 @@ public class Grenade : MonoBehaviour
         {
             StopCoroutine(timedDespawnCoroutine);
             timedDespawnCoroutine = null;
+        }
+
+        // 物理的離脱監視コルーチンも停止
+        if (dislodgementCheckCoroutine != null)
+        {
+            StopCoroutine(dislodgementCheckCoroutine);
+            dislodgementCheckCoroutine = null;
         }
 
         // 爆発エフェクト生成
@@ -333,7 +404,7 @@ public class Grenade : MonoBehaviour
             PooledTarget target = hit.GetComponent<PooledTarget>();
             if (target != null)
             {
-                Debug.Log("爆発によりターゲット " + hit.name + " を破壊します。");
+                // Debug.Log("爆発によりターゲット " + hit.name + " を破壊します。");
                 TargetPoolManager.Instance.ReturnTarget(target); // ターゲットをプールに戻す
             }
 
@@ -364,12 +435,19 @@ public class Grenade : MonoBehaviour
             GrenadeManager.Instance.UnregisterGrenade();
         }
 
-        // 確実に時間自動消滅コルーチンを停止
-        if (timedDespawnCoroutine != null)
+        // ★OnDestroyでoriginalSocketがまだ残っている場合の処理を追加
+        if (originalSocket != null && !wasPickedFromSocket) // まだソケットから「持ち去られた」と処理されていない場合
         {
-            StopCoroutine(timedDespawnCoroutine);
-            timedDespawnCoroutine = null;
+            // これは、グレネードがソケット内で、プレイヤーに一度も掴まれず、
+            // かつ物理的にも離脱せずに（例えば爆発に巻き込まれるなどで）直接Destroyされたケースを想定
+            originalSocket.OnGrenadeTaken(); // ソケットを確実に空き状態にする
+            Debug.Log($"Grenade {gameObject.name} destroyed while still in socket {originalSocket.gameObject.name}. Forcing socket to empty.");
         }
+
+        // 全てのコルーチンを停止
+        if (timedDespawnCoroutine != null) StopCoroutine(timedDespawnCoroutine);
+        if (delayedKinematicChangeCoroutine != null) StopCoroutine(delayedKinematicChangeCoroutine);
+        if (dislodgementCheckCoroutine != null) StopCoroutine(dislodgementCheckCoroutine);
     }
 
     // (デバッグ用) 爆発範囲をシーンビューに表示
