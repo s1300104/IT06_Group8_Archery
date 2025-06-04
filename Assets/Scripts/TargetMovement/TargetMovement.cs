@@ -169,17 +169,17 @@ public class TargetMovement : MonoBehaviour
         {
             // 特定のパターンでは独自の向き制御を優先、または向きを変えない
             bool applyFacingLogic = true;
-            switch (currentPattern)
-            {
-                case MovementPattern.SlowChasePlayer: // 独自のLookAtを持つ
-                // case MovementPattern.Circular:     // 独自の向き制御があり得る
-                // case MovementPattern.HorizontalOscillation: // 向き固定のことが多い
-                // case MovementPattern.VerticalOscillation:   // 向き固定のことが多い
-                    applyFacingLogic = false;
-                    break;
-                default:
-                    break;
-            }
+            // switch (currentPattern)
+            // {
+            //     case MovementPattern.SlowChasePlayer: // 独自のLookAtを持つ
+            //     // case MovementPattern.Circular:     // 独自の向き制御があり得る
+            //     // case MovementPattern.HorizontalOscillation: // 向き固定のことが多い
+            //     // case MovementPattern.VerticalOscillation:   // 向き固定のことが多い
+            //         applyFacingLogic = false;
+            //         break;
+            //     default:
+            //         break;
+            // }
 
             if (applyFacingLogic)
             {
@@ -187,7 +187,7 @@ public class TargetMovement : MonoBehaviour
                 directionToPlayer.y = 0;
                 if (directionToPlayer != Vector3.zero)
                 {
-                    Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+                    Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer);
                     if (facePlayerRotationSpeed > 0)
                         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, facePlayerRotationSpeed * Time.deltaTime);
                     else
@@ -304,13 +304,19 @@ public class TargetMovement : MonoBehaviour
     {
         if (playerTransform != null)
         {
-            Vector3 directionToPlayer = (playerTransform.position - transform.position).normalized;
+            // Vector3 directionToPlayer = (playerTransform.position - transform.position).normalized;
+            // if (directionToPlayer != Vector3.zero)
+            // {
+            //     Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer);
+            //     transform.rotation = targetRotation;
+            // }
+
             float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
             if (distanceToPlayer > minChaseDistance)
             {
-                transform.LookAt(playerTransform.position);
-                transform.Translate(Vector3.forward * chaseSpeed * Time.deltaTime);
+                // transform.LookAt(playerTransform.position);
+                transform.Translate(-Vector3.forward * chaseSpeed * Time.deltaTime);
             }
         }
     }
