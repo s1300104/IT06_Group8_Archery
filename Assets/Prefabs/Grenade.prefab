@@ -110,7 +110,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.125
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4156906287816888272
 MonoBehaviour:
@@ -527,8 +527,8 @@ FixedJoint:
   m_GameObject: {fileID: 3020468035255979227}
   m_ConnectedBody: {fileID: 5564017444950136229}
   m_ConnectedArticulationBody: {fileID: 0}
-  m_BreakForce: 50
-  m_BreakTorque: Infinity
+  m_BreakForce: 30
+  m_BreakTorque: 30
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
