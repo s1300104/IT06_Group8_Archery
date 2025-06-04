@@ -111,7 +111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8f3acdb77ec24f48b347c28014620ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 3
+  lifeTime: 5
   spawnEffectPrefab: {fileID: 4250298743439401460, guid: 184c47b8b8e4c814d8241a901f177515,
     type: 3}
   naturalDespawnEffectPrefab: {fileID: 0}
