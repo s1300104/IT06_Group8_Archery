@@ -57,6 +57,11 @@ public class PooledTarget : MonoBehaviour, IPoolable
                                      // エフェクト停止など後片付け
     }
 
+    public void UpdatePosition(Vector3 pos)
+    {
+        transform.position = pos;
+    }
+
     private IEnumerator LifeTimer()
     {
         yield return new WaitForSeconds(lifeTime);
