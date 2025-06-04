@@ -3,15 +3,21 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Box
+  - Trail
+  - Ground
+  - Target
+  - Environment
+  - Arrow
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Arrow
   - Water
   - UI
-  - 
+  - Bow
   - 
   - 
   - 
