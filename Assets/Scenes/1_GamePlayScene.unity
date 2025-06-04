@@ -4182,16 +4182,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 899678505531dcd43b7f9d8d1a8399e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  followMoveSpeed: 0.1
-  followRotateSpeed: 0.02
-  rotateSpeedThreshold: 0.9
-  isImmediateMove: 0
-  isLockX: 0
-  isLockY: 0
-  isLockZ: 0
-  rot: {x: 0, y: 0, z: 0, w: 0}
-  rotDif: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &927948540
 GameObject:
   m_ObjectHideFlags: 0
@@ -4713,7 +4703,7 @@ PrefabInstance:
     - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
