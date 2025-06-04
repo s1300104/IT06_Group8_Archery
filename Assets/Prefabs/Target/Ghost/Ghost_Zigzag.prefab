@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1092741472892007375}
   - component: {fileID: 1092741472892007372}
   - component: {fileID: -1291578333372571807}
-  - component: {fileID: -3926534351300676686}
+  - component: {fileID: -6454623235240162842}
   m_Layer: 0
   m_Name: Ghost_Zigzag
   m_TagString: Untagged
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9e6df5bfa547e047ade25605be05967, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-3926534351300676686
+--- !u!114 &-6454623235240162842
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,10 +107,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1092741472892007369}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91579be30ab90654ba2f6ae3402e836c, type: 3}
+  m_Script: {fileID: 11500000, guid: a8f3acdb77ec24f48b347c28014620ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 5
+  lifeTime: 20
+  movementPatternForBonus: 0
+  overrideDefaultMovement: 1
 --- !u!1001 &1092741471585585904
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -198,7 +200,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 41348a6e6a29975458ba03fab8420ad6, type: 2}
+      objectReference: {fileID: 2100000, guid: 4a02d379e3fab3e448116e26f7914c32, type: 2}
     - target: {fileID: -2535896707386832534, guid: f8c8b82560e0b8c4b9f992ac7993ab8d,
         type: 3}
       propertyPath: m_IsActive
@@ -208,7 +210,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 61ef8147e0a2c0c4f8c90e4f28495afb, type: 2}
+      objectReference: {fileID: 2100000, guid: 4a02d379e3fab3e448116e26f7914c32, type: 2}
     - target: {fileID: 130118765244216215, guid: f8c8b82560e0b8c4b9f992ac7993ab8d,
         type: 3}
       propertyPath: m_IsActive
@@ -233,7 +235,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 2d7fe8f96cbd6dc47abb4d444778a141, type: 2}
+      objectReference: {fileID: 2100000, guid: 4a02d379e3fab3e448116e26f7914c32, type: 2}
     - target: {fileID: 7722546486314524272, guid: f8c8b82560e0b8c4b9f992ac7993ab8d,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
