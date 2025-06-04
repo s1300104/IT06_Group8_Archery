@@ -8,6 +8,7 @@ public class ArrowController : MonoBehaviour
 
     [Header("寿命 (一定時間後に矢を消滅させる)")]
     [SerializeField] private float lifetime = 10f; // 10秒後に消滅
+    //public SphereCollider proximityTrigger;
 
     private void Awake()
     {
@@ -51,17 +52,18 @@ public class ArrowController : MonoBehaviour
         {
             Debug.Log("爆発によりターゲット " + other.name + " を破壊します。");
             TargetPoolManager.Instance.ReturnTarget(target); // ターゲットをプールに戻す
+            DestroyArrow();
+            enabled = false;
         }
-        DestroyArrow();
+        
         // 衝突したゲームオブジェクトが削除対象であるかを判断するロジック
         // 例: 衝突したオブジェクトが特定のタグを持っている場合
-        /*
-        if (other.gameObject.CompareTag("Box")) // 例: 削除したいオブジェクトに "DeletableTarget" タグを付ける
+        if (other.gameObject.CompareTag("Ground")) // 例: 削除したいオブジェクトに "DeletableTarget" タグを付ける
         {
-            Debug.Log("DeletableTargetに当たった！削除します。");
+            Debug.Log("Groundに当たった！" + this.name + "削除します。");
 
             // --- 矢と衝突したゲームオブジェクトの両方を削除 ---
-            Destroy(other.gameObject); // 衝突したゲームオブジェクトを削除
+            //Destroy(other.gameObject); // 衝突したゲームオブジェクトを削除
             DestroyArrow();            // 矢自身を削除 (Invokeで設定したDestroyArrowを直接呼ぶ)
 
             // 衝突したらこのスクリプトのUpdate関数を停止し、再度のトリガー検出を防ぐ
@@ -100,6 +102,7 @@ public class ArrowController : MonoBehaviour
     private void DestroyArrow()
     {
         Destroy(gameObject);
+        Debug.Log("Destroy the arrow");
     }
 }
 

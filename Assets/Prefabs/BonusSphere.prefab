@@ -119,8 +119,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8f3acdb77ec24f48b347c28014620ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 5
-  movementPatternForBonus: 7
+  lifeTime: 10
+  movementPatternForBonus: 6
   overrideDefaultMovement: 1
 --- !u!114 &-8493273863803726714
 MonoBehaviour:
@@ -129,7 +129,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2624576485922358823}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65f8080102e386449afef7b3af49061c, type: 3}
   m_Name: 
@@ -140,8 +140,8 @@ MonoBehaviour:
   circleSpeedMultiplier: 1
   waveFrequency: 1
   waveAmplitude: 1
-  chaseSpeed: 1.5
-  minChaseDistance: 5
+  chaseSpeed: 5
+  minChaseDistance: 1
   stopDuration: 0.25
   moveDuration: 0.5
   waypointAreaSize: {x: 10, y: 5, z: 10}

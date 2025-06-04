@@ -127,6 +127,7 @@ public class WBStringController : MonoBehaviour
         if (currentArrow == null || currentArrowRigidbody == null)
         {
             Debug.LogError("矢が準備されていません！");
+            Invoke("EnableSocket", 0.5f);
             return;
         }
 
@@ -146,7 +147,9 @@ public class WBStringController : MonoBehaviour
         currentArrowRigidbody.isKinematic = false;
         // 重力を有効化
         currentArrowRigidbody.useGravity = true;
-        
+        // IsTriggerを有効化
+        BoxCollider currentArrowCollider = currentArrow.GetComponent<BoxCollider>();
+        currentArrowCollider.isTrigger = true;
         // 矢に力を加える
         currentArrowRigidbody.AddForce(shootDirection * forceMagnitude, ForceMode.VelocityChange); // VelocityChangeは即座に速度を変化させる
         
