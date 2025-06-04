@@ -3245,10 +3245,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetPrefab: {fileID: 8779644828338446101, guid: c77f3f6ab54dccb489049a2fe434a426,
     type: 3}
-  initialPoolSize: 30
+  initialPoolSize: 20
   bonusTargetPrefab: {fileID: -6454623235240162842, guid: 7a34636c10cd492429d77b0ed487e437,
     type: 3}
-  initialBonusPoolSize: 5
+  initialBonusPoolSize: 3
   playerTransform: {fileID: 0}
 --- !u!1 &856980753
 GameObject:

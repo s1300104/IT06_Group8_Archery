@@ -13,6 +13,14 @@ public class BonusTarget : PooledTarget // PooledTargetを継承
     [Tooltip("trueの場合、上記の移動パターンで PooledTarget のデフォルトのランダムな移動パターンを上書きします。")]
     public bool overrideDefaultMovement = true;
 
+    [Header("Bonus Target Effects (Overrides PooledTarget if set)")]
+    public GameObject bonusSpawnEffectPrefab;
+    public GameObject bonusNaturalDespawnEffectPrefab;
+    public GameObject bonusPlayerActionDespawnEffectPrefab;
+    public AudioClip bonusSpawnSound;
+    public AudioClip bonusNaturalDespawnSound;
+    public AudioClip bonusPlayerActionDespawnSound;
+
     // PooledTargetのOnSpawnをオーバーライドして、独自の移動パターンを設定
     public override void OnSpawn()
     {
@@ -24,19 +32,68 @@ public class BonusTarget : PooledTarget // PooledTargetを継承
             targetMovement.InitializeMovement(movementPatternForBonus, transform.position);
             // Debug.Log($"BonusTarget {gameObject.name} spawned with specific pattern: {movementPatternForBonus}");
         }
+
+        // ボーナス専用スポーンエフェクト (もしあれば)
+        if (bonusSpawnEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(bonusSpawnEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(effect, 1f);
+        }
+        if (bonusSpawnSound != null)
+        {
+            AudioSource.PlayClipAtPoint(bonusSpawnSound, transform.position, 0.55f);
+        }
     }
 
     // PooledTargetのOnDespawnをオーバーライドして、イベントを発行
-    public override void OnDespawn()
+    public override void OnDespawn(DespawnReason reason)
     {
         // ボーナスターゲットが「破壊された」とみなし、イベントを発行
         // このタイミングは、ライフタイムでの消滅、またはプレイヤーによる破壊など、
         // プールに戻る全てのケースでイベントを発行するかどうかを検討する必要があります。
         // ここでは、OnDespawn時にイベントを発行するとします。
         Debug.Log($"BonusTarget {gameObject.name} is being despawned/destroyed. Invoking global event.");
-        OnBonusTargetDestroyed_Global?.Invoke();
+        if (reason == DespawnReason.PlayerAction) OnBonusTargetDestroyed_Global?.Invoke();
 
-        base.OnDespawn(); // 親クラス(PooledTarget)のOnDespawnを呼び出す (移動停止、TargetSpawnerへの通知など) [cite: 77, 315]
+        base.OnDespawn(reason); // 親クラス(PooledTarget)のOnDespawnを呼び出す (移動停止、TargetSpawnerへの通知など) [cite: 77, 315]
+    }
+
+    // ボーナスターゲット専用のデスポーンエフェクト処理 (PooledTargetのものをオーバーライド)
+    protected override void PlayDespawnEffects(DespawnReason reason)
+    {
+        GameObject effectToDespawn = null;
+        AudioClip soundToPlay = null;
+        float soundVolume = 0.5f;
+
+        // ボーナス専用エフェクトが設定されていればそれを使う
+        switch (reason)
+        {
+            case DespawnReason.Natural:
+                effectToDespawn = bonusNaturalDespawnEffectPrefab != null ? bonusNaturalDespawnEffectPrefab : naturalDespawnEffectPrefab;
+                soundToPlay = bonusNaturalDespawnSound != null ? bonusNaturalDespawnSound : naturalDespawnSound;
+                // soundVolume = 0.45f;
+                break;
+            case DespawnReason.PlayerAction:
+                effectToDespawn = bonusPlayerActionDespawnEffectPrefab != null ? bonusPlayerActionDespawnEffectPrefab : playerActionDespawnEffectPrefab;
+                soundToPlay = bonusPlayerActionDespawnSound != null ? bonusPlayerActionDespawnSound : playerActionDespawnSound;
+                // soundVolume = 0.65f;
+                break;
+            default: // OutOfBounds, ForceRemoved
+                // ボーナスの場合も共通の消滅エフェクトを使うか、専用のものがあればそれを使う
+                // effectToDespawn = ...
+                // soundToPlay = ...
+                break;
+        }
+        Debug.Log($"Bonus Target {gameObject.name} playing despawn effects for reason: {reason}");
+
+        if (effectToDespawn != null)
+        {
+            Instantiate(effectToDespawn, transform.position, Quaternion.identity);
+        }
+        if (soundToPlay != null)
+        {
+            AudioSource.PlayClipAtPoint(soundToPlay, transform.position, soundVolume);
+        }
     }
 
     // 例: ボーナスターゲットがプレイヤーの攻撃などで直接破壊された場合の処理

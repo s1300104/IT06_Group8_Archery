@@ -50,6 +50,7 @@ public class TargetPoolManager : MonoBehaviour
             return null;
         }
         var t = regularTargetPool.Get();
+        if (t == null) return null;
         t.transform.position = position;
 
         // プレイヤーの方向を向く
@@ -67,6 +68,7 @@ public class TargetPoolManager : MonoBehaviour
             return null;
         }
         var t = bonusTargetPool.Get();
+        if (t == null) return null;
         t.transform.position = position;
 
         // プレイヤーの方向を向く
@@ -87,22 +89,27 @@ public class TargetPoolManager : MonoBehaviour
     }
 
     // ターゲットの返却
-    public void ReturnTarget(PooledTarget t)
+    public void ReturnTarget(PooledTarget t, DespawnReason reason)
     {
         if (t == null) return;
 
         if (t is BonusTarget bonusTarget && bonusTargetPool != null)
         {
-            bonusTargetPool.ReturnToPool(bonusTarget);
+            bonusTargetPool.ReturnToPool(bonusTarget, reason);
         }
         else if (regularTargetPool != null)
         {
-            regularTargetPool.ReturnToPool(t);
+            regularTargetPool.ReturnToPool(t, reason);
         }
         else
         {
             Debug.LogWarning($"Target {t.gameObject.name} could not be returned to any pool. Destroying directly.");
             Destroy(t.gameObject);
         }
+    }
+
+    public void ReturnTarget(PooledTarget t)
+    {
+        ReturnTarget(t, DespawnReason.Natural); // デフォルトはNaturalとする
     }
 }
