@@ -73,7 +73,7 @@ public class Grenade : MonoBehaviour
         else
         {
             proximityTrigger.isTrigger = true; // 念のためトリガーに設定
-            proximityTrigger.radius = explosionRadius; // 爆発半径とトリガー半径を一致させる (または別途設定)
+            // proximityTrigger.radius = explosionRadius; // 爆発半径とトリガー半径を一致させる (または別途設定)
         }
     }
 
