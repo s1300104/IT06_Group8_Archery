@@ -77,41 +77,9 @@ public class TargetSpawner : MonoBehaviour
 
     void SpawnSpecificTarget(bool isBonus)
     {
-        Vector3 spawnPosition = Vector3.zero;
-        bool positionIsValid = false;
-        int maxSpawnRetries = 20; // 有効な位置を見つけるまでの最大試行回数
+        Vector3 spawnPosition;
 
-        for (int i = 0; i < maxSpawnRetries; i++)
-        {
-            // 1. まず、全体のスポーン範囲内でランダムな座標を生成
-            float rawX = Random.Range(spawnAreaCenter.x - spawnAreaSize.x / 2f, spawnAreaCenter.x + spawnAreaSize.x / 2f);
-            // 2. Y座標は spawnAreaCenter.y から 上限までの範囲に限定 (上半球)
-            float restrictedY = Random.Range(spawnAreaCenter.y, spawnAreaCenter.y + spawnAreaSize.y / 2f);
-            float rawZ = Random.Range(spawnAreaCenter.z - spawnAreaSize.z / 2f, spawnAreaCenter.z + spawnAreaSize.z / 2f);
-            
-            spawnPosition = new Vector3(rawX, restrictedY, rawZ);
-    
-            // 3. 禁止領域のチェック (exclusionZoneSizeが0より大きい場合のみ)
-            if (exclusionZoneSize.x > 0 || exclusionZoneSize.y > 0 || exclusionZoneSize.z > 0)
-            {
-                Vector3 actualExclusionCenter = spawnAreaCenter + exclusionZoneOffset;
-                Vector3 exclusionMin = actualExclusionCenter - exclusionZoneSize / 2f;
-                Vector3 exclusionMax = actualExclusionCenter + exclusionZoneSize / 2f;
-    
-                bool isInExclusionX = spawnPosition.x >= exclusionMin.x && spawnPosition.x <= exclusionMax.x;
-                bool isInExclusionY = spawnPosition.y >= exclusionMin.y && spawnPosition.y <= exclusionMax.y;
-                bool isInExclusionZ = spawnPosition.z >= exclusionMin.z && spawnPosition.z <= exclusionMax.z;
-    
-                if (isInExclusionX && isInExclusionY && isInExclusionZ)
-                {
-                    continue; // 禁止領域内なので再試行
-                }
-            }
-    
-            // すべての条件を満たしたので、この位置は有効
-            positionIsValid = true;
-            break; 
-        }
+        bool positionIsValid = TryFindValidSpawnPosition(out spawnPosition);
 
         if (!positionIsValid)
         {
@@ -139,10 +107,64 @@ public class TargetSpawner : MonoBehaviour
         }
     }
 
+    bool TryFindValidSpawnPosition(out Vector3 spawnPosition)
+    {
+        spawnPosition = Vector3.zero;
+        int maxSpawnRetries = 20; // 有効な位置を見つけるまでの最大試行回数
+
+        for (int i = 0; i < maxSpawnRetries; i++)
+        {
+            // 1. スポーン範囲内でランダムな座標を生成
+            float rawX = Random.Range(spawnAreaCenter.x - spawnAreaSize.x / 2f, spawnAreaCenter.x + spawnAreaSize.x / 2f);
+            // 2. Y座標は spawnAreaCenter.y から 上限までの範囲に限定 (上半球を意識)
+            float restrictedY = Random.Range(spawnAreaCenter.y, spawnAreaCenter.y + spawnAreaSize.y / 2f);
+            float rawZ = Random.Range(spawnAreaCenter.z - spawnAreaSize.z / 2f, spawnAreaCenter.z + spawnAreaSize.z / 2f);
+
+            Vector3 currentAttemptPosition = new Vector3(rawX, restrictedY, rawZ);
+
+            // 3. 禁止領域のチェック (exclusionZoneSizeのいずれかの要素が0より大きい場合のみ)
+            bool isInExclusionZone = false;
+            if (exclusionZoneSize.x > 0 || exclusionZoneSize.y > 0 || exclusionZoneSize.z > 0)
+            {
+                Vector3 actualExclusionCenter = spawnAreaCenter + exclusionZoneOffset;
+                Vector3 exclusionMin = actualExclusionCenter - exclusionZoneSize / 2f;
+                Vector3 exclusionMax = actualExclusionCenter + exclusionZoneSize / 2f;
+
+                bool isInExclusionX = currentAttemptPosition.x >= exclusionMin.x && currentAttemptPosition.x <= exclusionMax.x;
+                bool isInExclusionY = currentAttemptPosition.y >= exclusionMin.y && currentAttemptPosition.y <= exclusionMax.y;
+                bool isInExclusionZ = currentAttemptPosition.z >= exclusionMin.z && currentAttemptPosition.z <= exclusionMax.z;
+
+                if (isInExclusionX && isInExclusionY && isInExclusionZ)
+                {
+                    isInExclusionZone = true;
+                }
+            }
+
+            if (isInExclusionZone)
+            {
+                continue; // 禁止領域内なので再試行
+            }
+
+            // すべての条件を満たしたので、この位置は有効
+            spawnPosition = currentAttemptPosition;
+            return true; // 有効な位置が見つかった
+        }
+
+        return false; // 最大試行回数以内に有効な位置が見つからなかった
+    }
+
     // PooledTarget (およびそれを継承するBonusTarget) のOnDespawnから呼び出される
     // 引数としてデスポーンしたターゲットのインスタンスを受け取る
     public void OnTargetDespawned(PooledTarget despawnedTarget)
     {
+        Vector3 spawnPosition;
+        bool positionIsValid = TryFindValidSpawnPosition(out spawnPosition);
+
+        if (positionIsValid)
+        {
+            despawnedTarget.UpdatePosition(spawnPosition);
+        }
+
         if (despawnedTarget is BonusTarget)
         {
             if (currentBonusTargetCount > 0)

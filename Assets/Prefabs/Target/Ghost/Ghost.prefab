@@ -112,6 +112,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 3
+  alwaysFacePlayer: 1
+  facePlayerRotationSpeed: 5
   oscillationDistance: 5
   circleRadius: 5
   circleSpeedMultiplier: 2
