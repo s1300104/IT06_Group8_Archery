@@ -27,7 +27,7 @@ public class BonusTarget : PooledTarget // PooledTargetを継承
     }
 
     // PooledTargetのOnDespawnをオーバーライドして、イベントを発行
-    public override void OnDespawn()
+    public override void OnDespawn(DespawnReason reason)
     {
         // ボーナスターゲットが「破壊された」とみなし、イベントを発行
         // このタイミングは、ライフタイムでの消滅、またはプレイヤーによる破壊など、
@@ -36,7 +36,7 @@ public class BonusTarget : PooledTarget // PooledTargetを継承
         Debug.Log($"BonusTarget {gameObject.name} is being despawned/destroyed. Invoking global event.");
         OnBonusTargetDestroyed_Global?.Invoke();
 
-        base.OnDespawn(); // 親クラス(PooledTarget)のOnDespawnを呼び出す (移動停止、TargetSpawnerへの通知など) [cite: 77, 315]
+        base.OnDespawn(reason); // 親クラス(PooledTarget)のOnDespawnを呼び出す (移動停止、TargetSpawnerへの通知など) [cite: 77, 315]
     }
 
     // 例: ボーナスターゲットがプレイヤーの攻撃などで直接破壊された場合の処理

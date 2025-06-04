@@ -3,8 +3,30 @@ using System.Collections;
 
 public class PooledTarget : MonoBehaviour, IPoolable
 {
+    public enum DespawnReason
+    {
+        Natural,        // 寿命による自然消滅
+        PlayerAction,   // プレイヤーのアクション（グレネード、武器など）による破壊
+        OutOfBounds,    // 範囲外に出たなど、その他の理由
+        ForceRemoved    // 強制的な削除やリセットなど
+    }
+
     public float lifeTime = 5f;
     private Coroutine lifeCoroutine;
+
+    [Header("Effects (Assign in Inspector)")]
+    [Tooltip("ターゲットのスポーン時に出現するエフェクト")]
+    public GameObject spawnEffectPrefab;
+    [Tooltip("ターゲットの自然消滅時に出現するエフェクト")]
+    public GameObject naturalDespawnEffectPrefab; // 名前を変更して区別
+    [Tooltip("ターゲットがプレイヤーアクションで破壊された時に出現するエフェクト")]
+    public GameObject playerActionDespawnEffectPrefab; // 新規追加
+    [Tooltip("スポーン時の効果音")]
+    public AudioClip spawnSound;
+    [Tooltip("自然消滅時の効果音")]
+    public AudioClip naturalDespawnSound; // 名前を変更
+    [Tooltip("プレイヤーアクションで破壊された時の効果音")]
+    public AudioClip playerActionDespawnSound; // 新規追加
 
     protected TargetMovement targetMovement; // TargetMovementスクリプトへの参照
 
@@ -37,9 +59,21 @@ public class PooledTarget : MonoBehaviour, IPoolable
 
         // その他リセット処理（色やスケールなど）
         // 例: GetComponent<Renderer>().material.color = Color.white;
+
+        // エフェクト生成
+        if (spawnEffectPrefab != null && this.GetType() == typeof(PooledTarget))
+        {
+            Instantiate(spawnEffectPrefab, transform.position, Quaternion.identity);
+        }
+
+        // 効果音生成
+        if (spawnSound != null && this.GetType() == typeof(PooledTarget))
+        {
+            AudioSource.PlayClipAtPoint(spawnSound, transform.position, 0.5f); // 簡易的な再生
+        }
     }
 
-    public virtual void OnDespawn()
+    public virtual void OnDespawn(DespawnReason reason)
     {
         // コルーチン停止
         if (lifeCoroutine != null) StopCoroutine(lifeCoroutine);
@@ -55,6 +89,62 @@ public class PooledTarget : MonoBehaviour, IPoolable
         var spawner = FindObjectOfType<TargetSpawner>(); // パフォーマンス向上のため、可能ならキャッシュまたは別の方法で参照を取得
         spawner?.OnTargetDespawned(this);
                                      // エフェクト停止など後片付け
+
+        // デスポーン理由に応じてエフェクトとサウンドを再生
+        PlayDespawnEffects(reason);
+    }
+
+    // ★追加: デスポーン理由に応じたエフェクト再生メソッド
+    protected virtual void PlayDespawnEffects(DespawnReason reason)
+    {
+        GameObject effectToDespawn = null;
+        AudioClip soundToPlay = null;
+        float soundVolume = 0.5f;
+
+        // this.GetType() == typeof(PooledTarget) のチェックは、
+        // BonusTargetでこのメソッドをオーバーライドして専用エフェクトを出す場合に、
+        // ここで通常ターゲットのエフェクトのみを処理するため。
+        // もしBonusTargetがこのメソッドをオーバーライドしないなら、このチェックは不要で、
+        // reasonだけで分岐すれば良い。
+        // ここでは、BonusTargetがこのメソッドをオーバーライドすることを想定し、
+        // PooledTargetの場合は通常のエフェクトを再生するようにする。
+        // （ただし、BonusTargetがbase.PlayDespawnEffects()を呼ばない限り）
+
+        // if (this is PooledTarget) // 通常ターゲットまたは継承先でオーバーライドされていない場合
+        // {
+            switch (reason)
+            {
+                case DespawnReason.Natural:
+                    effectToDespawn = naturalDespawnEffectPrefab;
+                    soundToPlay = naturalDespawnSound;
+                    soundVolume = 0.4f; // 自然消滅は少し音量を下げるなど
+                    Debug.Log($"Target {gameObject.name} despawning naturally.");
+                    break;
+                case DespawnReason.PlayerAction:
+                    effectToDespawn = playerActionDespawnEffectPrefab;
+                    soundToPlay = playerActionDespawnSound;
+                    soundVolume = 0.6f; // プレイヤーアクションは少し音量を上げるなど
+                    Debug.Log($"Target {gameObject.name} destroyed by player action.");
+                    break;
+                case DespawnReason.OutOfBounds:
+                case DespawnReason.ForceRemoved:
+                    // これらの場合はエフェクトなし、または共通の消滅エフェクト
+                    // effectToDespawn = genericVanishEffect;
+                    // soundToPlay = genericVanishSound;
+                    Debug.Log($"Target {gameObject.name} despawning due to: {reason}");
+                    break;
+            }
+        // }
+
+
+        if (effectToDespawn != null)
+        {
+            Instantiate(effectToDespawn, transform.position, Quaternion.identity);
+        }
+        if (soundToPlay != null)
+        {
+            AudioSource.PlayClipAtPoint(soundToPlay, transform.position, soundVolume);
+        }
     }
 
     public void UpdatePosition(Vector3 pos)
