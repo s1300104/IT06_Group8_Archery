@@ -31,7 +31,7 @@ public class ArrowController : MonoBehaviour
         // これにより、矢が進行方向に常に頭を向けるように見えます。
         if (rb.velocity.magnitude > 0.1f) // 速度が十分に速い場合のみ
         {
-            transform.forward = rb.velocity.normalized;
+            transform.up = rb.velocity.normalized;
         }
     }
 

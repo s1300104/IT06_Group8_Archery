@@ -43,6 +43,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Arrow_stick
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100004, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5b4335161d9fa504c9ec268fe6a0a12b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -329,7 +341,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5141404418043366858}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33e0775b58a135646ad2711b57ee8f94, type: 3}
   m_Name: 
